@@ -1,0 +1,1 @@
+{"init":"return [\"ABBABAA\"];","oper":"let a=/BA/gi,b=\"AB\",r,o=[];\nwhile( r=a.exec(c[0]) ) {\n  let s = c[0].split(\"\");\n  s.splice(r.index,b.length,b);\n  o.push( [s.join(\"\")] );\n};\nreturn o;","eq":"return s1===s2;","coord":"return s;","detectors":"return [];"}

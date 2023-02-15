@@ -1,0 +1,12 @@
+<?xml version="1.0" standalone="no"?>
+<svg
+  width="24"
+  height="24"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect x="0" y="0" width="20" height="20" fill="white"/>
+  <path stroke="black" stroke-width="2" d="M7 10V14M10 5V14M13 7V14"/>
+  <path stroke="black" stroke-width="1" stroke-opacity="0.5" d="M4 4V15H16"/>
+</svg>

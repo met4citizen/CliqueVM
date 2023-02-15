@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="no"?>
+<svg
+  width="24"
+  height="24"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect x="0" y="0" width="20" height="20" fill="white"/>
+  <line stroke="black" stroke-width="1" stroke-opacity="0.5" x1="9.5" y1="8" x2="6.5" y2="12" />
+  <line stroke="black" stroke-width="1" stroke-opacity="0.5" x1="10.5" y1="8" x2="12.5" y2="12" />
+  <line stroke="black" stroke-width="1" stroke-opacity="0.5" x1="8" y1="13" x2="12" y2="13" />
+  <ellipse fill="none" stroke="black" stroke-width="1" cx="10" cy="7" rx="1.8" ry="1.8" />
+  <ellipse fill="none" stroke="black" stroke-width="1" cx="6" cy="13" rx="1.8" ry="1.8" />
+  <ellipse fill="none" stroke="black" stroke-width="1" cx="14" cy="13" rx="1.8" ry="1.8" />
+</svg>

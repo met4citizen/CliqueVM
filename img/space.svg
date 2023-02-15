@@ -1,0 +1,26 @@
+<?xml version="1.0" standalone="no"?>
+<svg
+  width="24"
+  height="24"
+  viewBox="0 0 21 21"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect x="0" y="0" width="21" height="21" fill="white"/>
+  <line stroke="black" stroke-width="1" stroke-opacity="0.5" x1="5" y1="7" x2="5" y2="14" />
+  <line stroke="black" stroke-width="0.9" stroke-opacity="0.5" x1="5" y1="7" x2="10" y2="5" />
+  <line stroke="black" stroke-width="1.1" stroke-opacity="0.5" x1="5" y1="7" x2="10" y2="9" />
+  <line stroke="black" stroke-width="1" stroke-opacity="0.5" x1="15" y1="7" x2="15" y2="14" />
+  <line stroke="black" stroke-width="0.9" stroke-opacity="0.5" x1="15" y1="7" x2="10" y2="5" />
+  <line stroke="black" stroke-width="1.1" stroke-opacity="0.5" x1="15" y1="7" x2="10" y2="9" />
+  <line stroke="black" stroke-width="1.1" stroke-opacity="0.5" x1="10" y1="16" x2="5" y2="14" />
+  <line stroke="black" stroke-width="1.2" stroke-opacity="0.5" x1="10" y1="16" x2="10" y2="9" />
+  <line stroke="black" stroke-width="1.1" stroke-opacity="0.5" x1="10" y1="16" x2="15" y2="14" />
+  <ellipse fill="black" stroke="none" cx="5" cy="7" rx="1.4" ry="1.4" />
+  <ellipse fill="black" stroke="none" cx="5" cy="14" rx="1.4" ry="1.4" />
+  <ellipse fill="black" stroke="none" cx="10" cy="5" rx="1.35" ry="1.35" />
+  <ellipse fill="black" stroke="none" cx="10" cy="9" rx="1.55" ry="1.55" />
+  <ellipse fill="black" stroke="none" cx="10" cy="16" rx="1.55" ry="1.55" />
+  <ellipse fill="black" stroke="none" cx="15" cy="7" rx="1.4" ry="1.4" />
+  <ellipse fill="black" stroke="none" cx="15" cy="14" rx="1.4" ry="1.4" />
+</svg>

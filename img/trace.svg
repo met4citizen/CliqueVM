@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="no"?>
+<svg
+  width="24"
+  height="24"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <defs>
+    <marker id="triangle" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" markerWidth="3" markerHeight="3" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="black" fill-opacity="0.5" />
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="20" height="20" fill="white"/>
+  <line stroke="black" stroke-width="1" stroke-opacity="0.5" marker-end="url(#triangle)" x1="10" y1="6" x2="7" y2="10" />
+  <line stroke="black" stroke-width="1" stroke-opacity="0.5" marker-end="url(#triangle)" x1="10" y1="6" x2="10" y2="10" />
+  <line stroke="black" stroke-width="1" stroke-opacity="0.5" marker-end="url(#triangle)" x1="10" y1="6" x2="13" y2="10" />
+  <ellipse fill="black" stroke="black" stroke-width="1" cx="10" cy="6" rx="1.8" ry="1.8" />
+  <ellipse fill="none" stroke="black" stroke-width="0.9" cx="5" cy="14" rx="1.8" ry="1.8" />
+  <ellipse fill="none" stroke="black" stroke-width="0.9" cx="10" cy="14" rx="1.8" ry="1.8" />
+  <ellipse fill="none" stroke="black" stroke-width="0.9" cx="15" cy="14" rx="1.8" ry="1.8" />
+</svg>
