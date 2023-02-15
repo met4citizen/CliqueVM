@@ -275,7 +275,13 @@ string rewriting.
 
 Copy the JSON string below and import it to the app:
 ```json
-{"init":"return [\"ABBABAA\"];","oper":"let a=/BA/gi,b=\"AB\",r,o=[];\nwhile( r=a.exec(c[0]) ) {\n  let s = c[0].split(\"\");\n  s.splice(r.index,b.length,b);\n  o.push( [s.join(\"\")] );\n};\nreturn o;","eq":"return s1===s2;","coord":"return s;","detectors":"return [];"}
+{
+  "init":"return [\"ABBABAA\"];",
+  "oper":"let a=/BA/gi,b=\"AB\",r,o=[];\nwhile( r=a.exec(c[0]) ) {\n  let s = c[0].split(\"\");\n  s.splice(r.index,b.length,b);\n  o.push( [s.join(\"\")] );\n};\nreturn o;",
+  "eq":"return s1===s2;",
+  "coord":"return s;",
+  "detectors":"return [];"
+}
 ```
 
 #### Single-way graph rewriting (1,2)(1,3)->(1,2)(1,4)(2,4)(3,4)
@@ -284,7 +290,13 @@ Copy the JSON string below and import it to the app:
 
 Copy the JSON string below and import it to the app:
 ```json
-{"init":"let v = this.id();\nreturn [[v,v],[v,v]];","oper":"let s = this.clone(c);\nthis.shuffle(s);\nif(s.length>=2){\n  let v1=c[0][0],v2=c[0][1],v3=c[1][1],v4=this.id();\n  s.splice(0,2,[v1,v2],[v1,v4],[v2,v4],[v3,v4]);\n}\nreturn [s];","eq":"return s1[0]===s2[0];","coord":"return s[0].toString();","detectors":"return [];"}
+{
+  "init":"let v = this.id();\nreturn [[v,v],[v,v]];",
+  "oper":"let s = this.clone(c);\nthis.shuffle(s);\nif(s.length>=2){\n  let v1=c[0][0],v2=c[0][1],v3=c[1][1],v4=this.id();\n  s.splice(0,2,[v1,v2],[v1,v4],[v2,v4],[v3,v4]);\n}\nreturn [s];",
+  "eq":"return s1[0]===s2[0];",
+  "coord":"return s[0].toString();",
+  "detectors":"return [];"
+}
 ```
 
 #### Two random walkers 3D
@@ -293,5 +305,11 @@ Copy the JSON string below and import it to the app:
 
 Copy the JSON string below and import it to the app:
 ```json
-{"init":"return [{x:0,y:0,z:0},{x:0,y:0,z:0}];","oper":"let s=[],t=[];\nfor( let p of c ) {\n  let [a,b]=this.clone([p,p]);\n  let i=this.shuffle(['x','y','z'])[0];\n  if (a[i]<3) a[i]++;\n  if (b[i]>-3) b[i]--;\n  s.push(a);\n  t.push(b);\n}\nreturn [s,t];","eq":"return s1.x===s2.x && s1.y===s2.y && s1.z===s2.z;","coord":"return s.x+','+s.y+','+s.z;","detectors":"return Array.from({length:7},(_,i)=>({x:i-3,y:0,z:0}));"}
+{
+  "init":"return [{x:0,y:0,z:0},{x:0,y:0,z:0}];",
+  "oper":"let s=[],t=[];\nfor( let p of c ) {\n  let [a,b]=this.clone([p,p]);\n  let i=this.shuffle(['x','y','z'])[0];\n  if (a[i]<3) a[i]++;\n  if (b[i]>-3) b[i]--;\n  s.push(a);\n  t.push(b);\n}\nreturn [s,t];",
+  "eq":"return s1.x===s2.x && s1.y===s2.y && s1.z===s2.z;",
+  "coord":"return s.x+','+s.y+','+s.z;",
+  "detectors":"return Array.from({length:7},(_,i)=>({x:i-3,y:0,z:0}));"
+}
 ```
