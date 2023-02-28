@@ -12,22 +12,20 @@
   <meta name="twitter:image" content="https://met4citizen.github.io/CliqueVM/screenshot.jpg">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" integrity="sha384-Xi8rHCmBmhbuyyhbI88391ZKP2dmfnOl4rT9ZfRI7mLTdk1wblIUnrIq35nqwEvC" crossorigin="anonymous">
   <style>
   html{ width:100%; height:100%; font-size: 1vw; font-family: Verdana, Geneva, sans-serif; }
-  body{ width: 100%; height: 100%; margin: 0; padding: 0; background-color: white; color: black; line-height:1vw; overflow: hidden; text-align: left; touch-action: manipulation; }
+  body{ width: 100%; height: 100%; margin: 0; padding: 0; background-color: white; color: #505050; line-height:1vw; overflow: hidden; text-align: left; touch-action: manipulation; }
   h1{font-family: "Courier",monospace; font-size:14px; line-height: 14px; color:#404040; font-weight:bold;}
-  .katex { font-size: 1em; }
 
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background-color: rgba(119, 136, 153, 0.5); border: transparent; }
 
-  #outer{ display: flex; position: absolute; top: 5.5vw; line-height: 1vw; left:0; right:0; bottom:0; margin:0; padding:0; }
-  #graph{ flex: 1; position: relative; margin: 0; padding:0; border-top: 1px solid lightgray; }
+  #outer{ display: flex; position: absolute; top: 5.1vw; line-height: 1vw; left:0; right:0; bottom:0; margin:0; padding:0; }
+  #graph { flex: 1; position: relative; margin: 0; padding:0; border-top: 1px solid lightgray; }
   #graph-dot{ position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: 0; padding:0; overflow:scroll; vertical-align:top; text-align: center; scrollbar-color: rgba(155, 155, 155, 0.5) transparent; scrollbar-width: thin; }
   #graph-dot > svg { margin: 50px 50px 120px 50px; }
-  #graph-force{ position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: 0; padding:0; overflow: hidden; }
+  #graph-force { position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: 0; padding:0; overflow: hidden; }
   #legend { position: absolute; z-index: 3; opacity: 0.8; bottom:1.5vw; right: 0; margin: 0 15px 0 0; padding: 0; color: slategray; cursor: default; pointer-events: none; font-family: Verdana, Geneva, sans-serif; vertical-align: middle; text-align: left; font-size:1.2vw; line-height: 1.5vw; }
   .legend { display:block; clear:both; width: 100%; height:100%;}
   .legend svg { display: inline-block; margin: 0 5px; padding: 0; height: 1.2vw; }
@@ -47,44 +45,55 @@
   .js-debug { color: darkred; font-weight: bold; white-space: wrap;}
 
 
-  #toolbar { display: flex; position: absolute; top:1.6vw; left: 0; right: 0; margin: 0 0.7vw 0 0.7vw; padding: 0.3vw; z-index: 3; opacity: 0.6; font-size: 1vw; color: black; text-align: middle; line-height: 3vw; cursor: default; pointer-events: none;}
-  #toolbar-panel { flex: 0 0 3vw; display: none; flex-direction: column; margin: 2vw 0.7vw -0.7vw 0.7vw; padding: 0.3vw; z-index: 3; opacity: 0.6; font-size: 1vw; color: black; text-align: middle; line-height: 3vw; cursor: default; pointer-events: none;}
-  #title, #title-model { flex: 1; align-items: center; justify-content: center; pointer-events: none; }
-  #title div { text-align: center; color: slategray; margin-top: -0.5vw; }
-  .title1 { display: block; font-size: 1.5vw; line-height: 1.7vw; font-weight: 600; color: black; transform: scaleX(0.8); }
-  .title2 { display: block; font-size: 1.2vw; line-height: 1.4vw; font-weight: 500; }
-  .unit { flex: 0 0 3vw; position: relative; margin:0 1px 2.4vw 0; padding: 0; width: 3vw; height: 3vw; border: 0; vertical-align:middle; text-align: center; }
-  .unit-action { border-radius: 0.5vw; font-size: 1.2vw; font-weight: 600; cursor: pointer; pointer-events: auto; }
+  #toolbar { display: flex; flex-basis: 3vw; vertical-align: bottom; }
+  #toolbar-panel { position: relative; width: 5vw; display: none; flex-direction: column; margin: 1vw 0 1.5vw 0; padding: 0; z-index: 3; font-size: 1vw; text-align: middle; line-height: 3vw; cursor: default; pointer-events: none;}
+  .group { display: flex; gap: 2px; height: 3.3vw; padding: 0.2vw 1vw; margin: 1.5vw 0 0 0; }
+  #toolbar > .group { border-left: 1px solid lightgray; }
+  #toolbar > .group:first-child { border: 0; }
+  .flex-filler { flex: 1; align-items: center; justify-content: center; }
+  .unit { display: block; position: relative; margin:0; padding: 0; line-height: 3vw; border: 0; vertical-align:middle; text-align: center; }
+  .unit-action { height: 3vw; width: 3vw; border-radius: 50%; font-size: 1.2vw; font-weight: 600; cursor: pointer; pointer-events: auto; }
   .unit-text { font-size: 1.2vw; font-weight: 600; pointer-events: none; }
-  .unit-zero { flex: 0 0 0; margin: 0; }
+  .unit-zero { flex-basis: 0; }
   .unit svg { margin: 0; padding: 0; width: 3vw; height: 3vw; }
-  .unit-action:active, .selected { background-color: black; color: white; }
-  .subtitle { position: absolute; display:block; font-size: 1.2vw; font-weight: 500; vertical-align:middle; text-align: center; margin-left: 50%; height: 3vw; color: slategray; transform: translate(-50%,-2.4vw) scaleX(0.7); white-space: nowrap;}
-  .unit-force { flex: 0 0 4.5vw; line-height: 3vw; }
-  input[type="range"] { width: 100%; height: 100%; margin: 0.2vw 0 0 0; -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; pointer-events: auto; }
-  input[type="range"]::-webkit-slider-runnable-track { background: slategray; height: 0.4vw; }
-  input[type="range"]::-moz-range-track { background: slategray; height: 0.4vw; }
-  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -0.6vw; background: black; height: 1.6vw; width: 0.7vw; }
-  input[type="range"]::-moz-range-thumb { border: none; border-radius: 0; background-color: black; height: 1.6vw; width: 0.7vw; }
-  input[type="range"]:focus { outline: none; }
-  input[type="range"]:focus::-webkit-slider-thumb { border: 1px solid black; outline: 2px solid black; outline-offset: 1px; }
-  input[type="range"]:focus::-moz-range-thumb { border: 1px solid black; outline: 2px solid black; outline-offset: 1px; }
+  .unit-action:active, .selected { background-color: #305070; color: white; }
+  .set-force { flex-basis: 4.5vw; width: 4.5vw; }
+  #play.selected, #yalp.selected { background: darkred; color: white; }
+  .subtitle { position: absolute; display:block; font-size: 1.2vw; font-weight: 500; vertical-align:middle; text-align: center; margin-left: 50%; height: 3vw; color: #a0a0a0; transform: translate(-50%,-2.4vw) scaleX(0.7); white-space: nowrap; }
 
-  #export-box { position: absolute; bottom: 12.6vw; right: 5vw; width: 30vw; height: 3.5vw; z-index: 5; padding: 0.5vw; text-align: left; background: white; border: 1px solid black; }
-  #import-box { position: absolute; bottom: 7.2vw; right: 5vw; width: 30vw; height: 3.5vw; z-index: 5; padding: 0.5vw; text-align: left; background: white; border: 1px solid black; }
-  #export-box span, #import-box span { display:inline-block; font-size: 1.2vw; font-weight: 600; color: slategray; transform-origin: left center; transform: scaleX(0.7); white-space: nowrap;}
+  input[type="range"] { width: 100%; height: 100%; margin: 0.2vw 0 0 0; -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; pointer-events: auto; }
+  input[type="range"]::-webkit-slider-runnable-track { background: #a0a0a0; height: 0.4vw; }
+  input[type="range"]::-moz-range-track { background: #a0a0a0; height: 0.4vw; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -0.6vw; background: #505050; height: 1.6vw; width: 0.7vw; }
+  input[type="range"]::-moz-range-thumb { border: none; border-radius: 0; background-color: #505050; height: 1.6vw; width: 0.7vw; }
+  input[type="range"]:focus { outline: none; }
+  input[type="range"]:focus::-webkit-slider-thumb { border: 1px solid #002040; outline: 2px solid #002040; outline-offset: 1px; }
+  input[type="range"]:focus::-moz-range-thumb { border: 1px solid #002040; outline: 2px solid #002040; outline-offset: 1px; }
+
+  .box-left { display: flex; position: absolute; right: 0.9vw; z-index: 5; background: white; border: 1px solid lightgray; padding: 0.5vw; line-height: 1vw; }
+  .box-bottom { display: flex; flex-direction: column; position: absolute; top: 3.4vw; padding: 1vw 0 0.5vw 0; z-index: 5; background: white; border: 1px solid lightgray; }
+  #observer-box { width: 4.8vw; margin-left: -1vw; }
+  #filter-box { width: 16vw; margin-left: -1vw; right: -4.3vw; }
+  #export-box { top: -1.5vw; width: 25vw; height: 3.5vw; }
+  #import-box { top: -1.5vw; width: 25vw; height: 3.5vw; }
   #export-json, #import-json {
-    display:block; resize: none; width: 29vw; height: 1.8vw;
+    display:block; resize: none; width: 100%; height: 2.5vw;
     overflow-x:hidden; overflow-y:scroll;
     margin:3px 0 0 0; padding: 2px; border: 1px solid lightgrey;
     font-family: "Courier",monospace; font-size:9px;
     line-height: 11px; color:#404040; background-color: white;
     text-align: left; -webkit-touch-callout: text; -webkit-user-select: text;
     -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text;
-    user-select: text; opacity: 1;
+    user-select: text;
   }
 
-  .forcegraph-label { color: black;}
+  #progress-bar { width: 100%; height: 1.3vw; margin-top: 0.6vw; display: flex; gap: 0.2vw; flex-wrap: nowrap; padding: 2px; border: 1px solid #a0a0a0; }
+  #progress-bar span { position: relative; width: 100%; height: 100%; background-color: #a0a0a0; }
+  #progress-mask { position: absolute; background-color: white; top: 0; right: 0; bottom: 0; width: 100%; z-index: 2; }
+  #progress-ui { flex: 0 0 1.5vw; width: 1.5vw; height: 100%; background-color: #a0a0a0; opacity: 1; }
+  .lcd { font-family: LCD; color: #a0a0a0; font-size: 1.2vw; line-height: 1.7vw; font-weight: 600; vertical-align:middle; text-align: center; white-space: nowrap; }
+
+  .fg-label { color: black;}
 
   a { cursor: pointer; pointer-events: auto; }
   .bar { fill: slategray; }
@@ -99,11 +108,16 @@
   .highlight { background: darkred; color: white; }
   .highlight span { color: darkred; }
   .disabled { opacity: 0.2; pointer-events: none; }
-  .latex {}
   .pass { content: "PASS"; background: green; }
   .pass:after { content: "PASS"; }
   .fail { content: "FAIL"; background: darkred; }
   .fail:after { content: "FAIL"; }
+  .smooth { transition: width 0.1s linear; }
+  .blink { animation: blink 1s step-start 0s infinite; }
+
+  @keyframes blink { 50% { opacity: 0.0; } }
+  @font-face { font-family:"LCD"; src: url("/fonts/lcd.woff") format('woff'); }
+
 </style>
 
 <script nomodule>alert("You browser doesn't seem to support modules. Use a modern browser to run CliqueVM.");</script>
@@ -113,33 +127,88 @@
 
 <script type="module">
 
-import { Graphviz } from 'https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2.8.0/dist/graphviz.js';
-import _3dForceGraph from 'https://cdn.jsdelivr.net/npm/3d-force-graph@1.70.20/+esm';
-import { cm6 } from './modules/cm6.min.mjs';
-import { TrigraphUI } from './modules/TrigraphUI.mjs';
-import { ModelAPI } from './modules/ModelAPI.mjs';
+import { CliqueVM } from './modules/CliqueVM.mjs';
+import { ModelManager } from './modules/ModelManager.mjs';
 
 // Global variables
-const qm = new TrigraphUI();
-let graphviz = null; // Graphviz DOT
-let forcegraph = null; // Force graph 3D
-let timerIdle = null; // Force graph idle timer
-let timerPress = null; // Repeat command when user holds down a button
-const timeoutIdle = 6000; // Timeout for force graph idle, in milliseconds
-const timeoutPress = 200; // Repeat command timeout, in milliseconds
+let mm; // Model Manager
+let vm; // Virtual Machine
+const codenames = ['init','oper','coord','detectors']; // Code segments
+let prevcode = null; // Code when focusin
 let scale = 0.5; // Zoom level
 let graphw = 40; // Graph window width in percentage
-const code = ['init','oper','eq','coord','detectors']; // Code segments
-const cm6view = [null,null,null,null,null]; // CodeMirror views
-const codesrc = [
-  "return [{x:0,y:0,z:0},{x:0,y:0,z:0}];",
-  "let s=[],t=[];\nfor( let p of c ) {\n  let [a,b]=this.clone([p,p]);\n  let i=this.shuffle(['x','y','z'])[0];\n  if (a[i]<3) a[i]++;\n  if (b[i]>-3) b[i]--;\n  s.push(a);\n  t.push(b);\n}\nreturn [s,t];",
-  "return s1.x===s2.x && s1.y===s2.y && s1.z===s2.z;",
-  "return s.x+','+s.y+','+s.z;",
-  "return Array.from({length:7},(_,i)=>({x:i-3,y:0,z:0}));"
-];
+let timerPress = null; // Repeat command when user holds down a button
+const timeoutPress = 200; // Repeat command timeout, in milliseconds
 
-let prevcode = null; // Code when focusin
+// Shorten LCD display for large numbers
+function lcd(n) {
+  if (n > 1000000) return Math.round(n/1000000) + 'M';
+  if (n > 10000) return Math.round(n/1000) + 'K';
+  return ''+n;
+}
+
+// CliqueVM event handler
+function vmEventHandler(type,x=null) {
+
+  // console.log(type,x);
+
+  switch(type) {
+    case 'step-progress': // Notify step processing progress [0-100]
+      d3.select("#progress-mask")
+        .classed('smooth', x>0 )
+        .style('width', (100-x)+'%');
+      break;
+
+    case 'view-progress': // Notify view processing progress [0-100]
+      d3.select("#progress-ui").classed('blink', x!==100 );
+      if ( x===0 ) {
+      } else if ( x===100 && vm.wwviewjobs.length === 0 ) {
+        if ( d3.select('#play').classed('selected') ) {
+          setTimeout( function() { d3.select('#next').dispatch('click'); }, 500 );
+        } else if ( d3.select('#yalp').classed('selected') ) {
+          setTimeout( function() { d3.select('#prev').dispatch('click'); }, 500 );
+        }
+      }
+      zoom();
+      break;
+
+    case 'abort': // Notify that some (all) jobs were aborted/cancelled
+      d3.select("#progress-mask")
+        .classed('smooth', false )
+        .style('width', '100%');
+      d3.select("#progress-ui")
+        .classed('blink', false )
+      break;
+
+    case 'info': // Information about the data
+      if ( x.step ) {
+        d3.select("#step").text(x.step);
+        d3.selectAll('#prev,#yalp').classed('disabled', (x.step <= 1) );
+        if ( x.step === 1 ) d3.select('#yalp').classed('selected',false);
+      }
+      if ( x.ids ) {
+        d3.select("#ops").text(lcd(x.ids[1]-x.ids[0]));
+        d3.select("#states").text(lcd(x.ids[2]-x.ids[1]));
+        d3.select("#cliques").text(lcd(x.ids[3]-x.ids[2]));
+        d3.select("#size").text(lcd(x.ids[3]));
+        d3.selectAll('#next,#play').classed('disabled', x.ids[3]===x.ids[2] );
+        if ( x.ids[3]===x.ids[2] ) d3.select('#play').classed('selected',false);
+      }
+      break;
+
+    case 'step-error': // Error handling
+    case 'view-error':
+    case 'dot-error':
+      console.log(x)
+      alert('Error in the model:\n' + x.message);
+      break;
+
+    default: // Unknown message
+      console.log(type,x);
+  }
+}
+
+
 
 // Get URL parameters
 function getUrlParameter(name) {
@@ -150,7 +219,13 @@ function getUrlParameter(name) {
 }
 
 // The DOT renderer has finished all actions
-function dotReady() {
+function zoom(r=1) {
+
+  // Change zoom
+  scale = Math.max(0.05,Math.min(3,scale*r));
+  d3.select('#zoom-in').classed('disabled',scale===3);
+  d3.select('#zoom-out').classed('disabled',scale===0.05);
+
   // Scale SVG based on current zoom level
   let svg = d3.select('#graph-dot > svg');
   if ( !svg.empty() ) {
@@ -162,452 +237,65 @@ function dotReady() {
     const viewBox = svg.node().attributes.viewBox.value.split(' ').map(Number);
     svg.node().attributes.width.value = (4 * s * viewBox[2] / 3) + 'px';
     svg.node().attributes.height.value = (4 * s * viewBox[3] / 3) + 'px';
-
-    // Zoom text
-    d3.select('#zoom').text(Math.round(10*scale)/10);
-
-    // Select clique
-    d3.selectAll('.node').on('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      let sel = parseInt( d3.select(this).select('title').text() );
-      render(sel);
-    });
   }
 }
 
-function getTitle(t1,t2) {
-  return '<div><span class="title1">'+t1+'</span><span class="title2">'+t2+'</span></div>';
-}
-
-// Reader graph
-function render(sel=null) {
-  try {
-    let dot = null; // DOT language graph
-    let svg = null; // SVG graph
-    let data = null; // D3-force-3D graph data
-    let title = ''; // Graph title
-    let legend = null; // Legend
-
-    // Use selected graph
-    let graph = d3.select('.set-graph.selected').property('id');
-    let view = d3.select('.set-'+graph+'.selected').property('id');
-
-    switch( graph ) {
-
-      case 'trace':
-        switch( view ) {
-
-          case 'trace-full':
-            title = getTitle('MULTI-THREAD TRACE','Multiway evolution graph');
-            legend = '#legend-operation,#legend-state,#legend-clique,#legend-location';
-            dot = qm.dotMultiway( sel, 0 );
-            break;
-
-          case 'trace-clique':
-            title = getTitle('MULTI-THREAD TRACE','Maximal cliques');
-            legend = '#legend-clique,#legend-location';
-            dot = qm.dotMultiway( sel, 1 );
-            break;
-
-          case 'trace-location':
-            title = getTitle('MULTI-THREAD TRACE','Spacetime');
-            legend = '#legend-location';
-            dot = qm.dotMultiway( sel, 2 );
-            break;
-        }
-        break;
-
-      case 'snap':
-        switch( view ) {
-
-          case 'snap-state':
-            title = getTitle('STATE SNAPSHOT','Spacelike foliation');
-            legend = '#legend-state,#legend-location';
-            dot = qm.dotHypersurface( sel, 0 );
-            break;
-
-          case 'snap-clique':
-            title = getTitle('CLIQUE SNAPSHOT','Local clique graphs');
-            legend = '#legend-clique,#legend-location';
-            dot = qm.dotHypersurface( sel, 1 );
-            break;
-
-          case 'snap-location':
-            title = getTitle('LOCATION SNAPSHOT','Branchial graph');
-            legend = '#legend-location';
-            dot = qm.dotHypersurface( sel, 2 );
-            break;
-        }
-        break;
-
-      case 'space':
-        title = getTitle('SPATIAL 3D-PROJECTION','Locations with parent relations');
-        legend = '#legend-density';
-        data = qm.dataSpace();
-        break;
-
-      case 'hits':
-        switch( view ) {
-          case 'hits-count':
-            title = getTitle('DETECTOR HITS','Count at current step');
-            svg = qm.svgHits(0);
-            break;
-          case 'hits-sum':
-            title = getTitle('DETECTOR HITS','Total cumulative count');
-            svg = qm.svgHits(1);
-            break;
-        }
-        break;
-    }
-
-    // Set title
-    d3.select("#title").html(title);
-
-    // Set legend
-    d3.selectAll('.legend').classed('hidden',true);
-    if ( legend ) {
-      d3.selectAll(legend).classed('hidden',false);
-    }
-
-    // Render
-    if ( data ) {
-      d3.selectAll('.set-force').classed('hidden',false);
-      d3.selectAll('.set-zoom').classed('hidden',true);
-      d3.select("#graph-dot").classed('hidden', true);
-      d3.select("#graph-force").classed('hidden', false);
-      forcegraph.graphData(data);
-      forcegraphResumeTimeout();
-    } else {
-      d3.selectAll('.set-force').classed('hidden',true);
-      d3.selectAll('.set-zoom').classed('hidden',false);
-      d3.select("#graph-dot").classed('hidden', false);
-      d3.select("#graph-force").classed('hidden', true);
-      if ( dot ) {
-        let svg = graphviz.layout(dot,"svg","dot");
-        document.getElementById("graph-dot").innerHTML = svg;
-        dotReady();
-      } else if ( svg ) {
-        document.getElementById("graph-dot").innerHTML = "";
-        d3.select("#graph-dot").append(() => svg.node());
-        dotReady();
-      } else {
-        document.getElementById("graph-dot").innerHTML = "";
-      }
-    }
-
-    // Display step
-    d3.select("#step").text( qm.getStep() );
-
-    // Display status
-    qm.status().forEach( (x,i) => {
-      d3.select('details#'+x.id+">p").html(x.text);
-    });
-    d3.select('details#d999>p').html(dot);
-
-    // Typeset Math
-    d3.selectAll('.latex').each( function(e) {
-      renderMathInElement(this, {
-        delimiters: [
-          {left: '\\(', right: '\\)', display: false},
-          {left: '\\[', right: '\\]', display: true}
-        ],
-        throwOnError : false
-      });
-    });
-  }
-  catch(ex) {
-    if ( timerPress ) clearInterval( timerPress );
-    console.log(ex);
-    alert(ex);
+// Set legend
+function setLegend(legend=null) {
+  d3.selectAll('.legend').classed('hidden',true);
+  if ( legend ) {
+    d3.selectAll(legend).classed('hidden',false);
   }
 }
 
-function loadCode() {
-  code.forEach( (x,i) => {
-    let e = d3.select("#"+x+".code");
-    let v = localStorage.getItem(x) || codesrc[i];
-    cm6view[i].dispatch( {changes: {from: 0, to: cm6view[i].state.doc.length, insert: v }} );
-  });
-}
-
-function saveCode() {
-  code.forEach( (x,i) => {
-    let v = cm6view[i].state.doc.toString();
-    localStorage.setItem(x,v);
-  });
-}
-
-function getCode() {
-  return code.map( (x,i) => {
-    let v = cm6view[i].state.doc.toString();
-    return '"use strict";\n' + v;
-  });
-}
-
-function getCodeJson() {
-  let o = {};
-  code.forEach( (x,i) => {
-    o[x] = cm6view[i].state.doc.toString();
-  });
-  return JSON.stringify(o);
-}
-
-function setCodeJson(json) {
-  try {
-    let o = JSON.parse(json);
-    code.forEach( (x,i) => {
-      if ( o[x] && typeof o[x] === 'string' ) {
-        cm6view[i].dispatch( {changes: {from: 0, to: cm6view[i].state.doc.length, insert: o[x] }} );
-      }
-    });
-  }
-  catch(ex) {
-    console.log(ex);
-    alert(ex);
-  }
-  d3.selectAll('.code').dispatch("input");
-  d3.select("#deploy").classed('highlight',true);
-}
-
-function reset() {
-
-  // Validate code
-  try {
-    let code = getCode();
-    let params = {
-      api: new ModelAPI(),
-      initf: new Function(code[0]),
-      operf: new Function("c",code[1]),
-      eqf: new Function("s1","s2",code[2]),
-      coordf: new Function("s",code[3]),
-      detectorsf: new Function(code[4])
-    };
-
-    qm.reset(params);
-
-    d3.select("#reset").classed('disabled',true);
-    d3.select("#incstep").classed('disabled',false);
-    d3.select("#decstep").classed('disabled',true);
-
-    render();
-  }
-  catch(ex) {
-    d3.selectAll("#incstep,#decstep").classed('disabled',true);
-    d3.select("#reset").classed('disabled',false);
-    console.log(ex.stack);
-    alert('There was an error in the MODEL:\n\n'+ex);
-  }
-}
-
-
-// Pause rendering cycle
-function forcegraphPause() {
-  forcegraph.pauseAnimation();
-}
-
-// Resume rendering cycle
-function forcegraphResume() {
-  if ( !d3.select("#graph-force").classed('hidden') ) {
-    forcegraph.resumeAnimation();
-    if ( timerIdle ) { clearTimeout( timerIdle ); timerIdle = null; }
-  }
-}
-
-// Resume rendering cycle
-function forcegraphResumeTimeout() {
-  if ( !d3.select("#graph-force").classed('hidden') ) {
-    forcegraphResume();
-    timerIdle = setTimeout( function() {
-      forcegraphPause();
-    }, timeoutIdle );
-  }
-}
-
-// Set force
-function forcegraphForce(force,friction) {
-  forcegraph.d3Force("link").distance( force );
-  forcegraph.d3Force("charge").strength( -10 * (force + 10) );
-  forcegraph.d3VelocityDecay( friction / 100 );
-  let d = forcegraph.graphData();
-  forcegraph.graphData(d);
-  forcegraphResumeTimeout();
-}
-
-// Resize force graph
-function forcegraphResize() {
-  let size = d3.select("#graph").node().getBoundingClientRect();
-  forcegraph.width(size.width);
-  forcegraph.height(size.height);
-  forcegraphResumeTimeout();
-}
-
-// Zoom in
-function zin() {
-  scale *= 1.2;
-  if ( scale >= 3 ) {
-    d3.select('#zoom-in').classed('disabled',true);
-    if ( timerPress ) timerPress = clearInterval(timerPress);
-  }
-  d3.select('#zoom-out').classed('disabled',false);
-  render();
-}
-
-// Zoom out
-function zout() {
-  scale *= 0.8;
-  if ( scale <= 0.05 ) {
-    d3.select('#zoom-out').classed('disabled',true);
-    if ( timerPress ) timerPress = clearInterval(timerPress);
-  }
-  d3.select('#zoom-in').classed('disabled',false);
-  render();
-}
-
-// Increase step
-function incstep() {
-  try {
-    let mode = 0;
-    if ( d3.select("#observer-1").classed('selected') ) mode = 1;
-    if ( d3.select("#observer-2").classed('selected') ) mode = 2;
-
-    d3.select("#reset").classed('disabled',false);
-
-    if ( qm.next(mode) ) {
-      d3.select('#decstep').classed('disabled',false);
-    } else {
-      d3.select("#incstep").classed('disabled',true);
-      if ( timerPress ) timerPress = clearInterval(timerPress);
-    }
-    render();
-
-    // Scroll to bottom
-    if ( d3.select('#trace').classed('selected') ) {
-      const e = document.getElementById("graph-dot");
-      e.scrollTop = e.scrollHeight;
-    }
-  }
-  catch(ex) {
-    if ( timerPress ) timerPress = clearInterval(timerPress);
-    console.log(ex.stack);
-    alert('There was an error in the MODEL:\n\n'+ex);
-  }
-}
-
-// Decrease step
-function decstep() {
-  try {
-    if ( !qm.prev() ) {
-      d3.selectAll("#decstep,#reset").classed('disabled',true);
-      if ( timerPress ) timerPress = clearInterval(timerPress);
-
-      // Scroll to bottom
-      if ( d3.select('#trace').classed('selected') ||
-            d3.select('#snap').classed('selected') ) {
-        const e = document.getElementById("graph-dot");
-        e.scrollTop = e.scrollHeight;
-      }
-    }
-    d3.select('#incstep').classed('disabled',false);
-    render();
-  }
-  catch(ex) {
-    if ( timerPress ) timerPress = clearInterval(timerPress);
-    console.log(ex.stack);
-    alert('There was an error in the MODEL:\n\n'+ex);
-  }
-}
-
-// Load graphviz and reset
+// Initialize the app
 async function init() {
 
-  let promises = [];
-  promises.push( Graphviz.load() );
-
-  let model = getUrlParameter('model');
-  if ( model ) promises.push( d3.text(model) );
-
-  const data = await Promise.allSettled( promises );
-
-  // Graphviz
-  if ( data[0].status === 'rejected' ) {
-    alert('Loading Graphviz failed. Try reloading the page.:\n\n'+data[0].reason );
-  } else {
-    graphviz = data[0].value;
-
-    // Model
-    if ( model ) {
-      if ( data[1].status === 'rejected' ) {
-        alert('Loading JSON model failed:\n\n'+data[1].reason );
-        loadCode();
-      } else {
-        setCodeJson(data[1].value);
-      }
+  // Check URL parameter 'model'
+  // If set, import it to the model manager, otherwise use local storage.
+  let modelurl = getUrlParameter('model');
+  if ( modelurl ) {
+    let promises = [ d3.text(modelurl) ];
+    const data = await Promise.allSettled( promises );
+    if ( data[0].status === 'rejected' ) {
+      alert('Loading JSON model failed:\n\n'+data[0].reason );
+      mm.load();
     } else {
-      loadCode();
+      mm.import(data[0].value);
     }
+  } else {
+    mm.load();
+  }
 
-    // Reset model
-    reset();
+  // Setup the model
+  let model = mm.get();
+  vm.reset(model);
+  d3.select('#trace').dispatch('click');
 
-    // View
-    let view = getUrlParameter('view');
-    if ( view ) {
-      view.split(',').forEach( id => {
-        let e = d3.select('#'+id);
-        if ( !e.empty() ) e.dispatch('click');
-      });
-    }
+  // Check URL parameter 'view'
+  // If set, change the view by clicking the given ids.
+  let view = getUrlParameter('view');
+  if ( view ) {
+    view.split(',').forEach( id => {
+      let e = d3.select('#'+id);
+      if ( !e.empty() ) e.dispatch('click');
+    });
+  }
 
-    // Run
-    let step = getUrlParameter('step');
-    if ( step ) {
-      let n = parseInt(step);
-      if ( n && n > 0 ) {
-        while (--n>0) incstep();
-      }
+  // Check URL parameter 'step'
+  // If set, pre-run the given number of steps
+  let step = getUrlParameter('step');
+  if ( step ) {
+    let n = parseInt(step);
+    if ( n && n > 0 ) {
+      while (--n>0) vm.runNext();
     }
   }
+
 }
 
+// Page ready
 document.addEventListener('DOMContentLoaded', function(e) {
-
-  // Setup CodeMirror6
-  code.forEach( (x,i) => {
-    let s = cm6.createEditorState( "" );
-    cm6view[i] = cm6.createEditorView( s, document.getElementById(x) );
-  });
-
-  // Setup force graph
-  forcegraph = _3dForceGraph({ rendererConfig: { antialias: true, precision: "lowp" }})
-    ( document.getElementById("graph-force") )
-    .forceEngine('d3')
-    .numDimensions( 3 )
-    .showNavInfo( true )
-    .enablePointerInteraction( true )
-    .backgroundColor( 'white' )
-    .warmupTicks(5)
-    .cooldownTime( 5000 )
-    .linkDirectionalArrowLength(0)
-    .nodeVisibility( true )
-    .linkVisibility( true )
-    .nodeOpacity( 0.9 )
-    .linkOpacity( 0.8 )
-    .nodeRelSize( 8 )
-    .nodeVal( n => 2  )
-    .nodeColor( n => n.color )
-    .nodeLabel( n => `<span class="forcegraph-label">${ n.id }</span>` )
-    .linkWidth( l => 3 )
-    .linkColor( l => l.color );
-  forcegraph.controls().addEventListener( 'start', forcegraphResume );
-  forcegraph.controls().addEventListener( 'end', forcegraphResumeTimeout );
-  d3.select("#graph-dot").classed('hidden',true);
-  forcegraphResize();
-
-  forcegraph.d3Force("link").iterations( 15 );
-  forcegraph.d3Force("center").strength( 1 );
-  forcegraph.d3Force("charge").distanceMin( 20 );
-  forcegraphForce(30,30);
 
   // Resize panel window width
   d3.select('#resizer').on('mousedown touchstart', function(e) {
@@ -617,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
         d3.select('#graph').style('flex-basis',p+'%');
         d3.select('#legend').style('right',(100-p)+'%');
-        forcegraphResize();
+        vm.resize();
       }
     });
     d3.select(document).on('mouseup mouseleave touchend touchcancel', function(e) {
@@ -627,9 +315,10 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
   // Window resize event, resume and update graph dimensions
   d3.select(window).on('resize', function(){
-    forcegraphResize();
+    vm.resize();
   });
 
+  // Coding UI (CodeMirror)
   d3.selectAll('.code').on('focusin',function(e) {
     d3.selectAll(".js-test").classed('hidden',true);
     if ( d3.select("#deploy").classed('highlight') ) {
@@ -637,13 +326,13 @@ document.addEventListener('DOMContentLoaded', function(e) {
     } else {
       d3.select("#deploy").classed('highlight',true);
       let id = d3.select(this).property('id');
-      let ndx = code.indexOf(id);
-      prevcode = cm6view[ndx].state.doc.toString();
+      let ndx = codenames.indexOf(id);
+      prevcode = mm.cm6view[ndx].state.doc.toString();
     }
   }).on('focusout',function(e) {
     let id = d3.select(this).property('id');
-    let ndx = code.indexOf(id);
-    let currcode = cm6view[ndx].state.doc.toString();
+    let ndx = codenames.indexOf(id);
+    let currcode = mm.cm6view[ndx].state.doc.toString();
     if ( prevcode === currcode ) {
       d3.select("#deploy").classed('highlight',false);
     }
@@ -651,6 +340,22 @@ document.addEventListener('DOMContentLoaded', function(e) {
     this.style.height = 0;
     this.style.height = this.scrollHeight + "px";
   });
+
+  // Zoom in/out
+  d3.select('#zoom-in').on('mousedown', function(e) {
+    timerPress = setInterval(zoom, timeoutPress, 1.2);
+    zoom(1.2);
+  }).on('mouseup mouseleave', function(e) {
+    if ( timerPress ) timerPress = clearInterval(timerPress);
+  });
+
+  d3.select('#zoom-out').on('mousedown', function(e) {
+    timerPress = setInterval(zoom, timeoutPress, 0.8);
+    zoom(0.8);
+  }).on('mouseup mouseleave', function(e) {
+    if ( timerPress ) timerPress = clearInterval(timerPress);
+  });
+
 
   // Toggle details, bug fix for hidden divs not resizing
   d3.selectAll('details').on('toggle', function(e) {
@@ -660,238 +365,274 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
   // Reset
   d3.select('#reset').on('click', function(e) {
-    reset();
+    d3.selectAll('#play,#yalp').classed('selected',false);
+    vm.reset();
   });
 
-  // Zoom in/out
-  d3.select('#zoom-in').on('mousedown', function(e) {
-    timerPress = setInterval(zin, timeoutPress);
-    zin();
+  // Cancel
+  d3.select('#cancel').on('click', function(e) {
+    d3.selectAll('#play,#yalp').classed('selected',false);
+    vm.abort();
   });
 
-  d3.select('#zoom-out').on('mousedown', function(e) {
-    timerPress = setInterval(zout, timeoutPress);
-    zout();
+  // Next step
+  d3.select('#next').on('click', function(e) {
+    let options = {};
+    if ( d3.select('#observer-quantum').classed('selected') ) {
+      options.observer = 1;
+    } else if ( d3.select('#observer-classical').classed('selected') ) {
+      options.observer = 2;
+    }
+    if ( d3.select('#filter').classed('selected') ) {
+      if ( d3.select('#filter-1').classed('selected') ) {
+        let val = parseInt( d3.select("#filter-1-range").property('value'), 10 );
+        options.maxcliquesperloc = val;
+      }
+      if ( d3.select('#filter-2').classed('selected') ) {
+        let val = parseInt( d3.select("#filter-2-range").property('value'), 10 );
+        options.maxstatesperclique = val;
+      }
+    }
+    vm.runNext(options);
   });
 
-  // Inc/dec step
-  d3.select('#incstep').on('mousedown', function(e) {
-    timerPress = setInterval(incstep, timeoutPress);
-    incstep();
+  // Play
+  d3.select('#play').on('click', function(e) {
+    vm.abort();
+    if ( d3.select(this).classed('selected') ) {
+      d3.select(this).classed('selected', false);
+    } else {
+      d3.select(this).classed('selected', true);
+      d3.select('#yalp').classed('selected',false);
+      d3.select('#next').dispatch('click');
+    }
   });
 
-  d3.select('#decstep').on('mousedown', function(e) {
-    timerPress = setInterval(decstep, timeoutPress);
-    decstep();
+  // Play in reverse
+  d3.select('#yalp').on('click', function(e) {
+    vm.abort();
+    if ( d3.select(this).classed('selected') ) {
+      d3.select(this).classed('selected', false);
+    } else {
+      d3.select(this).classed('selected', true);
+      d3.select('#play').classed('selected',false);
+      d3.select('#prev').dispatch('click');
+    }
   });
 
-  // Release button
-  d3.selectAll('#zoom-in,#zoom-out,#incstep,#decstep').on('mouseup mouseleave', function(e) {
-    if ( timerPress ) timerPress = clearInterval(timerPress);
+  // Previous step
+  d3.select('#prev').on('click', function(e) {
+    vm.runPrev();
   });
 
-  // Toggle model/code panel
+
+  // Toggle model panel
   d3.selectAll('#model').on('click', function(e) {
-    let on = !d3.select(this).classed('selected');
-    d3.select(this).classed('selected', on);
-    if (on) {
+    if ( !d3.select(this).classed('selected') ) {
+      d3.select(this).classed('selected', true);
       d3.selectAll('#panel,#toolbar-panel').style('display','flex');
       d3.selectAll('.code').dispatch("input");
       d3.select('#resizer').style('display','block');
       d3.select('#graph').style('flex','0 0 ' + graphw + '%');
       d3.select('#legend').style('right',(100-graphw)+'%');
     } else {
+      d3.select(this).classed('selected', false);
       graphw = parseInt( d3.select('#graph').style('flex-basis') );
       d3.selectAll('#panel,#toolbar-panel').style('display','none');
       d3.select('#resizer').style('display','none');
       d3.select('#graph').style('flex','1');
       d3.select('#legend').style('right','0');
     }
-    forcegraphResize();
+    vm.resize();
   });
 
-  // Graphs
+  // Pick a graph
   d3.selectAll('.set-graph').on('click', function(e) {
     d3.selectAll(".set-graph").classed('selected',false);
     d3.select(this).classed('selected', true);
     let graph = d3.select(this).property('id');
     d3.selectAll(".set-space,.set-trace,.set-snap,.set-hits").classed('hidden',true);
     d3.selectAll(".set-"+graph).classed('hidden',false);
-    render();
+    let isSpace = (graph === 'space');
+    d3.selectAll('.set-force').classed('hidden',!isSpace);
+    d3.selectAll('.set-zoom').classed('hidden',isSpace);
+    d3.select("#graph-dot").classed('hidden', isSpace);
+    d3.select("#graph-force").classed('hidden', !isSpace);
+    d3.select('.set-'+graph+'.selected').dispatch('click');
   });
 
-  // Views
-  d3.selectAll('.set-space').on('click', function(e) {
-    d3.selectAll(".set-space").classed('selected',false);
-    d3.select(this).classed('selected', true);
-    render();
-  });
-
-  d3.selectAll('.set-trace').on('click', function(e) {
+  // Trace full
+  d3.select('#trace-full').on('click', function(e) {
     d3.selectAll(".set-trace").classed('selected',false);
     d3.select(this).classed('selected', true);
-    render();
+    setLegend('#legend-operation,#legend-state,#legend-clique,#legend-location');
+    vm.run('trace', { mode: 1 });
   });
 
-  d3.selectAll('.set-snap').on('click', function(e) {
+  // Trace cliques
+  d3.select('#trace-clique').on('click', function(e) {
+    d3.selectAll(".set-trace").classed('selected',false);
+    d3.select(this).classed('selected', true);
+    setLegend('#legend-clique,#legend-location');
+    vm.run('trace', { mode: 2 });
+  });
+
+  // Trace locations
+  d3.select('#trace-location').on('click', function(e) {
+    d3.selectAll(".set-trace").classed('selected',false);
+    d3.select(this).classed('selected', true);
+    setLegend('#legend-location');
+    vm.run('trace', { mode: 3 });
+  });
+
+  // Snap view with states
+  d3.select('#snap-state').on('click', function(e) {
     d3.selectAll(".set-snap").classed('selected',false);
     d3.select(this).classed('selected', true);
-    render();
+    setLegend('#legend-state,#legend-location');
+    vm.run('snap', { mode: 1 });
   });
 
-  d3.selectAll('.set-hits').on('click', function(e) {
+  // Snap view with cliques
+  d3.select('#snap-clique').on('click', function(e) {
+    d3.selectAll(".set-snap").classed('selected',false);
+    d3.select(this).classed('selected', true);
+    setLegend('#legend-clique,#legend-location');
+    vm.run('snap', { mode: 2 });
+  });
+
+  // Snap view with locations
+  d3.select('#snap-location').on('click', function(e) {
+    d3.selectAll(".set-snap").classed('selected',false);
+    d3.select(this).classed('selected', true);
+    setLegend('#legend-location');
+    vm.run('snap', { mode: 3 });
+  });
+
+  // Space now
+  d3.select('#space-paths').on('click', function(e) {
+    d3.selectAll(".set-space").classed('selected',false);
+    d3.select(this).classed('selected', true);
+    setLegend('#legend-density,#legend-ends');
+    vm.run('space', { mode: 1 });
+  });
+
+  // Space, full history
+  d3.select('#space-action').on('click', function(e) {
+    d3.selectAll(".set-space").classed('selected',false);
+    d3.select(this).classed('selected', true);
+    setLegend('#legend-density,#legend-paths');
+    vm.run('space', { mode: 2 });
+  });
+
+  // Hits at this current step
+  d3.select('#hits-step').on('click', function(e) {
     d3.selectAll(".set-hits").classed('selected',false);
     d3.select(this).classed('selected', true);
-    render();
+    setLegend();
+    vm.run('hits',{ mode: 1});
+  });
+
+  // Hits, cumulative sum
+  d3.select('#hits-sum').on('click', function(e) {
+    d3.selectAll(".set-hits").classed('selected',false);
+    d3.select(this).classed('selected', true);
+    setLegend();
+    vm.run('hits',{ mode: 2});
   });
 
   // Observers
-  d3.selectAll('#observer-1,#observer-2').on('click', function(e) {
-    let selected = d3.select(this).classed('selected');
-    d3.selectAll("#observer-1,#observer-2").classed('selected',false);
-    d3.select(this).classed('selected', !selected);
+  d3.select('#observer').on('click', function(e) {
+    if ( d3.select('#observer-box').classed('hidden') ) {
+      d3.selectAll('.box-bottom').classed('hidden',true);
+      d3.select('#observer-box').classed('hidden', false);
+    } else {
+      d3.select('#observer-box').classed('hidden', true);
+    }
+    if ( d3.selectAll('.set-observer.selected').empty() ) {
+      d3.select(this).classed('selected', false );
+    } else {
+      d3.select(this).classed('selected', true );
+    }
   });
+
+  d3.selectAll('.set-observer').on('click', function(e) {
+    if ( d3.select(this).classed('selected') ) {
+      d3.select(this).classed('selected', false );
+      d3.select('#observer').classed('selected', false);
+    } else {
+      d3.selectAll('.set-observer').classed('selected', false);
+      d3.select(this).classed('selected', true );
+      d3.select('#observer').classed('selected', true);
+    }
+  });
+
+  // Filters
+  d3.select('#filter').on('click', function(e) {
+    if ( d3.select('#filter-box').classed('hidden') ) {
+      d3.selectAll('.box-bottom').classed('hidden',true);
+      d3.select('#filter-box').classed('hidden', false);
+    } else {
+      d3.select('#filter-box').classed('hidden', true);
+    }
+    if ( d3.selectAll('.set-filter.selected').empty() ) {
+      d3.select(this).classed('selected', false );
+    } else {
+      d3.select(this).classed('selected', true );
+    }
+  });
+
+  d3.selectAll('.set-filter').on('click', function(e) {
+    let selected = d3.select(this).classed('selected');
+    d3.select(this).classed('selected', !selected);
+    if ( d3.selectAll('.set-filter.selected').empty() ) {
+      d3.select('#filter').classed('selected', false );
+    } else {
+      d3.select('#filter').classed('selected', true );
+    }
+  });
+
+  d3.selectAll('#filter-1-range').on('input change keyup', function() {
+    let val = d3.select(this).property('value');
+    d3.select('#filter-1-value').text(val);
+  });
+
+  d3.selectAll('#filter-2-range').on('input change keyup', function() {
+    let val = d3.select(this).property('value');
+    d3.select('#filter-2-value').text(val);
+  });
+
 
   // Changed force
   d3.selectAll('#force-range,#friction-range').on('input change keyup', function() {
     let force = parseInt( d3.select("#force-range").property('value'), 10 );
     let friction = parseInt( d3.select("#friction-range").property('value'), 10 );
-    forcegraphForce(force,friction);
+    vm.force(force,friction);
   });
 
-  // Run
+  // Deploy the current model and run it
   d3.select('#deploy').on('click', function(e) {
-    saveCode();
+    mm.save();
     d3.selectAll(".js-test").classed('hidden',true);
     d3.selectAll(".js-debug").text('');
     d3.select(this).classed('highlight',false);
-    reset();
+    let model = mm.get();
+    vm.reset(model);
+    vm.run();
   });
 
   // Test/debug
-  d3.select('#debug').on('click', function(e) {
-    let code = getCode();
-    let api = new ModelAPI();
-    let init;
-    let status;
-    let pass;
-
-    // Test init
-    status = "";
-    pass = false;
-    try {
-      let f = new Function(code[0]);
-      init = f.apply(api,[]);
-
-      if ( !Array.isArray(init) ) {
-				status = "ERROR: The returned value was not an array.";
-			} else if ( init.length === 0 ) {
-				status = "ERROR: The returned value was empty.";
-			} else {
-        pass = true;
-      }
-
-    }
-    catch(ex) {
-      console.log(ex.stack);
-      status = '' + ex;
-    }
-    d3.select("#init-test")
-      .classed('hidden',false)
-      .classed('pass', pass)
-      .classed('fail', !pass);
-    d3.select("#init-debug").text(status);
-
-    if ( !pass ) return;
-
-    // Test oper
-    status = "";
-    pass = false;
-    try {
-      let f = new Function("c",code[1]);
-      let o = f.apply(api,[init]);
-
-      if ( !Array.isArray(o) ) {
-        status = "ERROR: The returned value was not an array.";
-      } else if ( o.length ) {
-        if ( o.some( x => !Array.isArray(x) ) ) {
-          status = "ERROR: One of the operations was not an array.";
-        } else {
-          pass = true;
-        }
-      } else {
-        pass = true;
-      }
-
-    }
-    catch(ex) {
-      console.log(ex.stack);
-      status = '' + ex;
-    }
-    d3.select("#oper-test")
-      .classed('hidden',false)
-      .classed('pass', pass)
-      .classed('fail', !pass);
-    d3.select("#oper-debug").text(status);
-
-    // Test eq
-    status = "";
-    pass = false;
-    try {
-      let f = new Function("s1","s2",code[2]);
-      let o = f.apply(api,[init[0],init[0]]);
-      pass = true;
-    }
-    catch(ex) {
-      console.log(ex.stack);
-      status = '' + ex;
-    }
-    d3.select("#eq-test")
-      .classed('hidden',false)
-      .classed('pass', pass)
-      .classed('fail', !pass);
-    d3.select("#eq-debug").text(status);
-
-    // Test coord
-    status = "";
-    pass = false;
-    try {
-      let f = new Function("s",code[3]);
-      let o = f.apply(api,[init[0]]);
-      pass = true;
-    }
-    catch(ex) {
-      console.log(ex.stack);
-      status = '' + ex;
-    }
-    d3.select("#coord-test")
-      .classed('hidden',false)
-      .classed('pass', pass)
-      .classed('fail', !pass);
-    d3.select("#coord-debug").text(status);
-
-    // Test detectors
-    status = "";
-    pass = false;
-    try {
-      let f = new Function(code[4]);
-      let o = f.apply(api);
-      if ( !Array.isArray(o) ) {
-				status = "ERROR: The returned value was not an array.";
-			} else {
-        pass = true;
-      }
-    }
-    catch(ex) {
-      console.log(ex.stack);
-      status = '' + ex;
-    }
-    d3.select("#detectors-test")
-      .classed('hidden',false)
-      .classed('pass', pass)
-      .classed('fail', !pass);
-    d3.select("#detectors-debug").text(status);
-
+  d3.select('#test').on('click', function(e) {
+    mm.test( function(r) {
+      codenames.forEach( x => {
+        d3.select("#" + x + "-test")
+          .classed('hidden',false)
+          .classed('pass', r[x].pass)
+          .classed('fail', !r[x].pass);
+        d3.select("#" + x + "-debug")
+          .text(r[x].error ? r[x].error : '');
+      });
+    });
   });
 
   // Export (copy)
@@ -899,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     let s = !d3.select(this).classed('selected');
     d3.select(this).classed('selected',s);
     if ( s ) {
-      let json = getCodeJson();
+      let json = mm.export();
       d3.select("#export-box").classed('hidden',false);
       d3.select("#export-json").property('value',json);
       let n = d3.select("#export-json").node();
@@ -925,16 +666,24 @@ document.addEventListener('DOMContentLoaded', function(e) {
       d3.select("#import-box").classed('hidden',true);
       let json = d3.select("#import-json").property('value');
       if ( json.length ) {
-        setCodeJson( json );
+        mm.import( json );
       }
     }
   });
-
 
   // Open project's GitHub page
   d3.select('#github').on('click', function(e) {
     window.open('https://github.com/met4citizen/CliqueVM','_blank');
   });
+
+  // Setup model manager
+  mm = new ModelManager(codenames);
+
+  // Setup virtual machine
+  let edot = document.getElementById("graph-dot");
+  let eforce = document.getElementById("graph-force");
+  vm = new CliqueVM(vmEventHandler,edot,eforce);
+  // window.vm = vm;
 
   // Initialize
   init();
@@ -946,7 +695,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
 <body>
   <div id="outer">
     <div id="graph" class="noselect">
-      <div id="graph-dot" class="hidden"></div>
+      <div id="graph-dot"></div>
       <div id="graph-force"></div>
     </div>
     <div id="resizer" class="noselect"></div>
@@ -973,18 +722,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
           </p>
         </details>
         <details>
-          <summary class="noselect">EQUIVALENCE<span id="eq-test" class="js-test hidden"></span></summary>
-          <p class="js">
-            <span class="js-key">@param</span> {<span class="js-type">any</span>} <span class="js-param">s1</span> State 1<br>
-            <span class="js-key">@param</span> {<span class="js-type">any</span>} <span class="js-param">s2</span> State 2<br>
-            <span class="js-key">@return</span> {<span class="js-type">boolean</span>} True if the states are equivalent.
-          </p>
-          <div id="eq" class="code"></div>
-          <p id="eq-debug" class="js js-debug">
-          </p>
-        </details>
-        <details>
-          <summary class="noselect">COORDINATE<span id="coord-test" class="js-test hidden"></span></summary>
+          <summary class="noselect">COORDINATE / EQUIVALENCE<span id="coord-test" class="js-test hidden"></span></summary>
           <p class="js">
             <span class="js-key">@param</span> {<span class="js-type">any</span>} <span class="js-param">s</span> State<br>
             <span class="js-key">@return</span> {<span class="js-type">string</span>} Spatial coordinate.
@@ -996,63 +734,78 @@ document.addEventListener('DOMContentLoaded', function(e) {
         <details>
           <summary class="noselect">DETECTORS<span id="detectors-test" class="js-test hidden"></span></summary>
           <p class="js">
-            <span class="js-key">@return</span> {<span class="js-type">any[]</span>} Array of detector states.
+            <span class="js-key">@return</span> {<span class="js-type">string[]</span>} Array of detector coordinates.
           </p>
           <div id="detectors" class="code"></div>
           <p id="detectors-debug" class="js js-debug">
           </p>
         </details>
-        <details id="d0" class="latex">
-          <summary class="noselect">INFO</summary>
-          <p></p>
-        </details>
-        <details id="d999">
-          <summary class="noselect">DOT</summary>
-          <p></p>
-        </details>
       </div>
     </div>
 
     <div id="toolbar-panel" class="noselect">
-      <span id="deploy" class="unit unit-action">
-        <span class="subtitle">Deploy</span>
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"  />
-          <path d="M16 12L10 16.3301V7.66987L16 12Z" fill="currentColor" />
-        </svg>
-      </span>
-      <span id="debug" class="unit unit-action">
-        <span class="subtitle">Debug</span>
-        <svg viewBox="-2 -2 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 11C10 10.4477 10.4477 10 11 10H13C13.5523 10 14 10.4477 14 11C14 11.5523 13.5523 12 13 12H11C10.4477 12 10 11.5523 10 11Z" fill="currentColor" />
-          <path d="M11 14C10.4477 14 10 14.4477 10 15C10 15.5523 10.4477 16 11 16H13C13.5523 16 14 15.5523 14 15C14 14.4477 13.5523 14 13 14H11Z" fill="currentColor" />
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M9.09447 4.74918C8.41606 4.03243 8 3.0648 8 2H10C10 3.10457 10.8954 4 12 4C13.1046 4 14 3.10457 14 2H16C16 3.0648 15.5839 4.03243 14.9055 4.74918C16.1782 5.45491 17.1673 6.6099 17.6586 8H19C19.5523 8 20 8.44772 20 9C20 9.55229 19.5523 10 19 10H18V12H19C19.5523 12 20 12.4477 20 13C20 13.5523 19.5523 14 19 14H18V16H19C19.5523 16 20 16.4477 20 17C20 17.5523 19.5523 18 19 18H17.6586C16.8349 20.3304 14.6124 22 12 22C9.38756 22 7.16508 20.3304 6.34141 18H5C4.44772 18 4 17.5523 4 17C4 16.4477 4.44772 16 5 16H6V14H5C4.44772 14 4 13.5523 4 13C4 12.4477 4.44772 12 5 12H6V10H5C4.44772 10 4 9.55229 4 9C4 8.44772 4.44772 8 5 8H6.34141C6.83274 6.6099 7.82181 5.45491 9.09447 4.74918ZM8 16V10C8 7.79086 9.79086 6 12 6C14.2091 6 16 7.79086 16 10V16C16 18.2091 14.2091 20 12 20C9.79086 20 8 18.2091 8 16Z" fill="currentColor" />
-        </svg>
-      </span>
+      <div class="group">
+        <span id="deploy" class="unit unit-action" title="Deploy the model">
+          <span class="subtitle">Deploy</span>
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"  />
+            <path d="M16 12L10 16.3301V7.66987L16 12Z" fill="currentColor" />
+          </svg>
+        </span>
+      </div>
+      <div class="group">
+        <span id="test" class="unit unit-action" title="Test the model">
+          <span class="subtitle">Test</span>
+          <svg viewBox="-2 -2 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 11C10 10.4477 10.4477 10 11 10H13C13.5523 10 14 10.4477 14 11C14 11.5523 13.5523 12 13 12H11C10.4477 12 10 11.5523 10 11Z" fill="currentColor" />
+            <path d="M11 14C10.4477 14 10 14.4477 10 15C10 15.5523 10.4477 16 11 16H13C13.5523 16 14 15.5523 14 15C14 14.4477 13.5523 14 13 14H11Z" fill="currentColor" />
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M9.09447 4.74918C8.41606 4.03243 8 3.0648 8 2H10C10 3.10457 10.8954 4 12 4C13.1046 4 14 3.10457 14 2H16C16 3.0648 15.5839 4.03243 14.9055 4.74918C16.1782 5.45491 17.1673 6.6099 17.6586 8H19C19.5523 8 20 8.44772 20 9C20 9.55229 19.5523 10 19 10H18V12H19C19.5523 12 20 12.4477 20 13C20 13.5523 19.5523 14 19 14H18V16H19C19.5523 16 20 16.4477 20 17C20 17.5523 19.5523 18 19 18H17.6586C16.8349 20.3304 14.6124 22 12 22C9.38756 22 7.16508 20.3304 6.34141 18H5C4.44772 18 4 17.5523 4 17C4 16.4477 4.44772 16 5 16H6V14H5C4.44772 14 4 13.5523 4 13C4 12.4477 4.44772 12 5 12H6V10H5C4.44772 10 4 9.55229 4 9C4 8.44772 4.44772 8 5 8H6.34141C6.83274 6.6099 7.82181 5.45491 9.09447 4.74918ZM8 16V10C8 7.79086 9.79086 6 12 6C14.2091 6 16 7.79086 16 10V16C16 18.2091 14.2091 20 12 20C9.79086 20 8 18.2091 8 16Z" fill="currentColor" />
+          </svg>
+        </span>
+      </div>
 
-      <span id="title-model"></span>
+      <div class="flex-filler"></div>
 
-      <span id="export" class="unit unit-action">
-        <span class="subtitle">Export</span>
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path fill="none" stroke="currentColor" stroke-width="1.6" d="M9 10 9 6 18 6 18 18 9 18 9 14" />
-          <path fill="none" stroke="currentColor" stroke-width="1.4" d="M3 12 14.5 12M11.5 9 14.5 12 11.5 15" />
-        </svg>
-      </span>
-      <span id="import" class="unit unit-action">
-        <span class="subtitle">Import</span>
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path fill="none" stroke="currentColor" stroke-width="1.6" d="M9 10 9 6 18 6 18 18 9 18 9 14" />
-          <path fill="none" stroke="currentColor" stroke-width="1.4" d="M14 12 4 12M6 9 3 12 6 15" />
-        </svg>
-      </span>
+      <div class="group">
+        <span class="unit unit-zero">
+          <div id="export-box" class="box-left hidden">
+            <textarea id="export-json" spellcheck="false" wrap="on">
+            </textarea>
+          </div>
+        </span>
+        <span id="export" class="unit unit-action" title="Export JSON">
+          <span class="subtitle">Export</span>
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill="none" stroke="currentColor" stroke-width="1.6" d="M9 10 9 6 18 6 18 18 9 18 9 14" />
+            <path fill="none" stroke="currentColor" stroke-width="1.4" d="M3 12 14.5 12M11.5 9 14.5 12 11.5 15" />
+          </svg>
+        </span>
+      </div>
 
-      <span id="github" class="unit unit-action" title="GitHub">
-        <span class="subtitle">GitHub</span>
-        <svg viewBox="-1 -1 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z" fill="currentColor"/>
-        </svg>
-      </span>
+      <div class="group">
+        <span class="unit unit-zero">
+          <div id="import-box" class="box-left hidden">
+            <textarea id="import-json" spellcheck="false" wrap="on">
+            </textarea>
+          </div>
+        </span>
+        <span id="import" class="unit unit-action" title="Import JSON">
+          <span class="subtitle">Import</span>
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill="none" stroke="currentColor" stroke-width="1.6" d="M9 10 9 6 18 6 18 18 9 18 9 14" />
+            <path fill="none" stroke="currentColor" stroke-width="1.4" d="M14 12 4 12M6 9 3 12 6 15" />
+          </svg>
+        </span>
+      </div>
+
+      <div class="group">
+        <span id="github" class="unit unit-action" title="GitHub project">
+          <span class="subtitle">GitHub</span>
+          <svg viewBox="-1 -1 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z" fill="currentColor"/>
+          </svg>
+        </span>
+      </div>
 
     </div>
 
@@ -1060,233 +813,365 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
   <div id="toolbar" class="noselect">
 
-    <span id="trace" class="unit unit-action set-graph selected" title="Multithread trace">
-      <span class="subtitle">Trace</span>
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <marker id="triangle" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" markerWidth="3" markerHeight="3" orient="auto">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" fill-opacity="0.5" />
-          </marker>
-        </defs>
-        <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" marker-end="url(#triangle)" x1="10" y1="6" x2="7" y2="10" />
-        <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" marker-end="url(#triangle)" x1="10" y1="6" x2="10" y2="10" />
-        <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" marker-end="url(#triangle)" x1="10" y1="6" x2="13" y2="10" />
-        <ellipse fill="currentColor" stroke="currentColor" stroke-width="1" cx="10" cy="6" rx="1.8" ry="1.8" />
-        <ellipse fill="none" stroke="currentColor" stroke-width="0.9" cx="5" cy="14" rx="1.8" ry="1.8" />
-        <ellipse fill="none" stroke="currentColor" stroke-width="0.9" cx="10" cy="14" rx="1.8" ry="1.8" />
-        <ellipse fill="none" stroke="currentColor" stroke-width="0.9" cx="15" cy="14" rx="1.8" ry="1.8" />
-      </svg>
-    </span>
-    <span id="snap" class="unit unit-action set-graph" title="Snap">
-      <span class="subtitle">Snap</span>
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" x1="9.5" y1="8" x2="6.5" y2="12" />
-        <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" x1="10.5" y1="8" x2="12.5" y2="12" />
-        <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" x1="8" y1="13" x2="12" y2="13" />
-        <ellipse fill="none" stroke="currentColor" stroke-width="1" cx="10" cy="7" rx="1.8" ry="1.8" />
-        <ellipse fill="none" stroke="currentColor" stroke-width="1" cx="6" cy="13" rx="1.8" ry="1.8" />
-        <ellipse fill="none" stroke="currentColor" stroke-width="1" cx="14" cy="13" rx="1.8" ry="1.8" />
-      </svg>
-    </span>
-    <span id="space" class="unit unit-action set-graph" title="Spatial projection">
-      <span class="subtitle">Space</span>
-      <svg viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" x1="5" y1="7" x2="5" y2="14" />
-        <line stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" x1="5" y1="7" x2="10" y2="5" />
-        <line stroke="currentColor" stroke-width="1.1" stroke-opacity="0.5" x1="5" y1="7" x2="10" y2="9" />
-        <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" x1="15" y1="7" x2="15" y2="14" />
-        <line stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" x1="15" y1="7" x2="10" y2="5" />
-        <line stroke="currentColor" stroke-width="1.1" stroke-opacity="0.5" x1="15" y1="7" x2="10" y2="9" />
-        <line stroke="currentColor" stroke-width="1.1" stroke-opacity="0.5" x1="10" y1="16" x2="5" y2="14" />
-        <line stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5" x1="10" y1="16" x2="10" y2="9" />
-        <line stroke="currentColor" stroke-width="1.1" stroke-opacity="0.5" x1="10" y1="16" x2="15" y2="14" />
-        <ellipse fill="currentColor" stroke="none" cx="5" cy="7" rx="1.4" ry="1.4" />
-        <ellipse fill="currentColor" stroke="none" cx="5" cy="14" rx="1.4" ry="1.4" />
-        <ellipse fill="currentColor" stroke="none" cx="10" cy="5" rx="1.35" ry="1.35" />
-        <ellipse fill="currentColor" stroke="none" cx="10" cy="9" rx="1.55" ry="1.55" />
-        <ellipse fill="currentColor" stroke="none" cx="10" cy="16" rx="1.55" ry="1.55" />
-        <ellipse fill="currentColor" stroke="none" cx="15" cy="7" rx="1.4" ry="1.4" />
-        <ellipse fill="currentColor" stroke="none" cx="15" cy="14" rx="1.4" ry="1.4" />
-      </svg>
-    </span>
-    <span id="hits" class="unit unit-action set-graph" title="Detector counters">
-      <span class="subtitle">Hits</span>
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path stroke="currentColor" stroke-width="2" d="M7 10V14M10 5V14M13 7V14"/>
-        <path stroke="currentColor" stroke-width="1" stroke-opacity="0.5" d="M4 4V15H16"/>
-      </svg>
-    </span>
+    <div class="group">
+      <span id="trace" class="unit unit-action set-graph selected" title="Multithread trace">
+        <span class="subtitle">Trace</span>
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="triangle" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" markerWidth="3" markerHeight="3" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" fill-opacity="0.5" />
+            </marker>
+          </defs>
+          <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" marker-end="url(#triangle)" x1="10" y1="6" x2="7" y2="10" />
+          <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" marker-end="url(#triangle)" x1="10" y1="6" x2="10" y2="10" />
+          <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" marker-end="url(#triangle)" x1="10" y1="6" x2="13" y2="10" />
+          <ellipse fill="currentColor" stroke="currentColor" stroke-width="1" cx="10" cy="6" rx="1.8" ry="1.8" />
+          <ellipse fill="none" stroke="currentColor" stroke-width="0.9" cx="5" cy="14" rx="1.8" ry="1.8" />
+          <ellipse fill="none" stroke="currentColor" stroke-width="0.9" cx="10" cy="14" rx="1.8" ry="1.8" />
+          <ellipse fill="none" stroke="currentColor" stroke-width="0.9" cx="15" cy="14" rx="1.8" ry="1.8" />
+        </svg>
+      </span>
+      <span id="snap" class="unit unit-action set-graph" title="Snapshot trace">
+        <span class="subtitle">Snap</span>
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" x1="9.5" y1="8" x2="6.5" y2="12" />
+          <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" x1="10.5" y1="8" x2="12.5" y2="12" />
+          <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" x1="8" y1="13" x2="12" y2="13" />
+          <ellipse fill="none" stroke="currentColor" stroke-width="1" cx="10" cy="7" rx="1.8" ry="1.8" />
+          <ellipse fill="none" stroke="currentColor" stroke-width="1" cx="6" cy="13" rx="1.8" ry="1.8" />
+          <ellipse fill="none" stroke="currentColor" stroke-width="1" cx="14" cy="13" rx="1.8" ry="1.8" />
+        </svg>
+      </span>
+      <span id="space" class="unit unit-action set-graph" title="Spatial projection">
+        <span class="subtitle">Space</span>
+        <svg viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" x1="5" y1="7" x2="5" y2="14" />
+          <line stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" x1="5" y1="7" x2="10" y2="5" />
+          <line stroke="currentColor" stroke-width="1.1" stroke-opacity="0.5" x1="5" y1="7" x2="10" y2="9" />
+          <line stroke="currentColor" stroke-width="1" stroke-opacity="0.5" x1="15" y1="7" x2="15" y2="14" />
+          <line stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" x1="15" y1="7" x2="10" y2="5" />
+          <line stroke="currentColor" stroke-width="1.1" stroke-opacity="0.5" x1="15" y1="7" x2="10" y2="9" />
+          <line stroke="currentColor" stroke-width="1.1" stroke-opacity="0.5" x1="10" y1="16" x2="5" y2="14" />
+          <line stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5" x1="10" y1="16" x2="10" y2="9" />
+          <line stroke="currentColor" stroke-width="1.1" stroke-opacity="0.5" x1="10" y1="16" x2="15" y2="14" />
+          <ellipse fill="currentColor" stroke="none" cx="5" cy="7" rx="1.4" ry="1.4" />
+          <ellipse fill="currentColor" stroke="none" cx="5" cy="14" rx="1.4" ry="1.4" />
+          <ellipse fill="currentColor" stroke="none" cx="10" cy="5" rx="1.35" ry="1.35" />
+          <ellipse fill="currentColor" stroke="none" cx="10" cy="9" rx="1.55" ry="1.55" />
+          <ellipse fill="currentColor" stroke="none" cx="10" cy="16" rx="1.55" ry="1.55" />
+          <ellipse fill="currentColor" stroke="none" cx="15" cy="7" rx="1.4" ry="1.4" />
+          <ellipse fill="currentColor" stroke="none" cx="15" cy="14" rx="1.4" ry="1.4" />
+        </svg>
+      </span>
+      <span id="hits" class="unit unit-action set-graph" title="Detector counters">
+        <span class="subtitle">Hits</span>
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path stroke="currentColor" stroke-width="2" d="M7 10V14M10 5V14M13 7V14"/>
+          <path stroke="currentColor" stroke-width="1" stroke-opacity="0.5" d="M4 4V15H16"/>
+        </svg>
+      </span>
 
-    <span class="unit unit-text set-trace">
-      <span class="subtitle">&gt;</span>
-    </span>
-    <span id="trace-full" class="unit unit-action set-trace selected" title="All details">
-      <span class="subtitle">Details</span>
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <ellipse fill="currentColor" stroke="currentColor" stroke-width="1.2" cx="7" cy="7" rx="1.5" ry="1.5"/>
-        <ellipse fill="none" stroke="currentColor" stroke-width="1.2" cx="13" cy="7" rx="1.5" ry="1.5"/>
-        <polygon fill="currentColor" fill-opacity="0.5" stroke="currentColor" stroke-width="1" points="5,15 5,11 9,11 9,15 5,15"/>
-        <polygon fill="none" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" points="11,15 11,11 15,11 15,15 11,15"/>
-      </svg>
-    </span>
-    <span id="trace-clique" class="unit unit-action set-trace" title="Cliques">
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polygon fill="currentColor" fill-opacity="0.5" stroke="currentColor" stroke-width="1" points="5,12 5,8 9,8 9,12 5,12"/>
-        <polygon fill="none" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" points="11,12 11,8 15,8 15,12 11,12"/>
-      </svg>
-    </span>
-    <span id="trace-location" class="unit unit-action set-trace" title="Only locations">
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polygon fill="none" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" points="8,12 8,8 12,8 12,12 8,12"/>
-      </svg>
-    </span>
+      <span class="unit unit-text" style="flex: 0 0 1.5vw; width:1.5vw;">
+        <span class="subtitle">&gt;</span>
+      </span>
 
-    <span class="unit unit-text set-snap hidden">
-      <span class="subtitle">&gt;</span>
-    </span>
-    <span id="snap-state" class="unit unit-action set-snap selected hidden" title="States">
-      <span class="subtitle">Level</span>
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <ellipse fill="none" stroke="currentColor" stroke-width="1.2" cx="7" cy="10" rx="1.5" ry="1.5"/>
-        <polygon fill="none" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" points="11,12 11,8 15,8 15,12 11,12"/>
-      </svg>
-    </span>
-    <span id="snap-clique" class="unit unit-action set-snap hidden" title="Cliques">
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polygon fill="currentColor" fill-opacity="0.5" stroke="currentColor" stroke-width="1" points="5,12 5,8 9,8 9,12 5,12"/>
-        <polygon fill="none" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" points="11,12 11,8 15,8 15,12 11,12"/>
-      </svg>
-    </span>
-    <span id="snap-location" class="unit unit-action set-snap hidden" title="Locations">
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polygon fill="none" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" points="8,12 8,8 12,8 12,12 8,12"/>
-      </svg>
-    </span>
+      <span id="trace-full" class="unit unit-action set-trace selected" title="All details">
+        <span class="subtitle">Full</span>
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse fill="currentColor" stroke="currentColor" stroke-width="1.2" cx="10" cy="4.5" rx="1.5" ry="1.5"/>
+          <ellipse fill="none" stroke="currentColor" stroke-width="1.2" cx="7" cy="11.5" rx="1.5" ry="1.5"/>
+          <polygon fill="currentColor" fill-opacity="0.5" stroke="currentColor" stroke-width="1" points="10,13.5 10,9.5 14,9.5 14,13.5 10,13.5"/>
+          <polygon fill="none" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" points="4,15 4,8 16,8 16,15 4,15"/>
+        </svg>
+      </span>
+      <span id="trace-clique" class="unit unit-action set-trace" title="Cliques">
+        <span class="subtitle">Cliques</span>
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon fill="currentColor" fill-opacity="0.5" stroke="currentColor" stroke-width="1" points="8,12 8,8 12,8 12,12 8,12"/>
+          <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.5" points="5,15 5,5 15,5 15,15 5,15"/>
+        </svg>
+      </span>
+      <span id="trace-location" class="unit unit-action set-trace" title="Locations">
+        <span class="subtitle">Locs</span>
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.5" points="5,15 5,5 15,5 15,15 5,15"/>
+          <path d="M8 8L12 12M12 8L8 12" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.5" />
+        </svg>
+      </span>
 
-    <span class="unit unit-text set-space hidden">
-      <span class="subtitle">&gt;</span>
-    </span>
-    <span id="space-3d" class="unit unit-action set-space selected hidden">
-      <span class="subtitle">Dim</span>
-      3D
-    </span>
-    <span class="unit unit-text set-space hidden"></span>
-    <span class="unit unit-text set-space hidden"></span>
+      <span id="snap-state" class="unit unit-action set-snap selected hidden" title="States">
+        <span class="subtitle">States</span>
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse fill="none" stroke="currentColor" stroke-width="1.2" cx="10" cy="10" rx="1.5" ry="1.5"/>
+          <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.5" points="5,15 5,5 15,5 15,15 5,15"/>
+        </svg>
+      </span>
+      <span id="snap-clique" class="unit unit-action set-snap hidden" title="Cliques">
+        <span class="subtitle">Cliques</span>
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon fill="currentColor" fill-opacity="0.5" stroke="currentColor" stroke-width="1" points="8,12 8,8 12,8 12,12 8,12"/>
+          <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.5" points="5,15 5,5 15,5 15,15 5,15"/>
+        </svg>
+      </span>
+      <span id="snap-location" class="unit unit-action set-snap hidden" title="Locations">
+        <span class="subtitle">Locs</span>
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.5" points="5,15 5,5 15,5 15,15 5,15"/>
+          <path d="M8 8L12 12M12 8L8 12" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.5" />
+        </svg>
+      </span>
 
-    <span class="unit unit-text set-hits hidden">
-      <span class="subtitle">&gt;</span>
-    </span>
-    <span id="hits-count" class="unit unit-action set-hits selected hidden" title="Count">
-      <span class="subtitle">Step</span>
-      <svg viewBox="0.2 0 20.2 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polygon fill="currentColor" points="6.5,7 14.5,7 14.5,8.5 6.5,8.5 6.5,7"/>
-        <polygon fill="currentColor" points="6.3,11 14.3,11 14.3,12.5 6.3,12.5 6.3,11"/>
-        <polygon fill="currentColor" points="9,4 10,4 9,15.5 8,15.5 9,4"/>
-        <polygon fill="currentColor" points="12,4 13,4 12,15.5 11,15.5 12,4"/>
-      </svg>
-    </span>
-    <span id="hits-sum" class="unit unit-action set-hits hidden" title="Cumulative sum">
-      <span class="subtitle">Total</span>
-      <svg viewBox="-4 -4 26 26" xmlns="http://www.w3.org/2000/svg" >
-        <path d="M14 6 14 3 3 3 7.5 9 3 15 14 15 14 12 13 12 13 13 7 13 10 9 7 5 13 5 13 6 Z" fill="currentColor" />
-      </svg>
-    </span>
-    <span class="unit unit-text set-hits hidden" title=""></span>
+      <span id="space-paths" class="unit unit-action set-space selected hidden" title="Opers to locs">
+        <span class="subtitle">Paths</span>
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g transform="rotate(45 10 10)">
+            <path stroke="currentColor" stroke-width="1.2" stroke-opacity="0.3" d="M7 7L13 13" />
+            <path stroke="currentColor" stroke-width="1.2" stroke-opacity="0.3" d="M7 13L13 13" />
+            <path stroke="currentColor" stroke-width="1.2" stroke-opacity="0.3" d="M13 7L13 13" />
+            <ellipse fill="currentColor" cx="13" cy="13" rx="2" ry="2" />
+            <ellipse fill="#a0a0a0" cx="7" cy="13" rx="2" ry="2" />
+            <ellipse fill="#a0a0a0" cx="13" cy="7" rx="2" ry="2" />
+            <ellipse fill="#a0a0a0" cx="7" cy="7" rx="2" ry="2" />
+          </g>
+        </svg>
+      </span>
 
-    <span id="title" class="latex"></span>
+      <span id="space-action" class="unit unit-action set-space selected hidden" title="Sum of paths">
+        <span class="subtitle">Action</span>
+        <svg
+           viewBox="0 -4 14.631454 37.395218"
+           xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(-96.508425,-133.80238)" >
+            <path stroke="currentColor"
+               d="m 111.13988,135.99844 c 0,0.79375 -0.58208,1.1377 -1.11125,1.1377 -0.50271,0 -1.08479,-0.34395 -1.08479,-1.11125 0,-0.37041 0.21167,-0.97895 0.97896,-1.08479 -0.58209,-0.50271 -1.40229,-0.55562 -1.66688,-0.55562 -1.19062,0 -2.09021,0.66146 -2.46062,5.52979 l -0.50271,6.58812 c -0.21167,2.93688 -1.16417,10.63625 -1.50812,12.01208 -0.58209,2.38125 -1.85209,4.68313 -4.365629,4.68313 -1.5875,0 -2.910417,-0.92604 -2.910417,-2.19604 0,-0.79375 0.582084,-1.13771 1.11125,-1.13771 0.502709,0 1.084792,0.34396 1.084792,1.11125 0,0.37042 -0.211667,0.97896 -0.978958,1.08479 0.555625,0.47625 1.349374,0.55563 1.693333,0.55563 1.508129,0 2.460629,-1.19063 2.804579,-5.5298 l 0.50271,-6.58812 c 0.23813,-3.20146 1.19063,-10.66271 1.50813,-12.11791 0.44979,-2.01084 1.48166,-4.5773 3.9952,-4.5773 1.5875,0 2.91042,0.92605 2.91042,2.19605 z"
+               style="fill:currentColor;stroke-width:0.1" />
+          </g>
+        </svg>
+      </span>
 
-    <span id="zoom-out" class="unit unit-action set-zoom" title="Zoom out">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M15.3431 15.2426C17.6863 12.8995 17.6863 9.1005 15.3431 6.75736C13 4.41421 9.20101 4.41421 6.85786 6.75736C4.51472 9.1005 4.51472 12.8995 6.85786 15.2426C9.20101 17.5858 13 17.5858 15.3431 15.2426ZM16.7574 5.34315C19.6425 8.22833 19.8633 12.769 17.4195 15.9075C17.4348 15.921 17.4498 15.9351 17.4645 15.9497L21.7071 20.1924C22.0976 20.5829 22.0976 21.2161 21.7071 21.6066C21.3166 21.9971 20.6834 21.9971 20.2929 21.6066L16.0503 17.364C16.0356 17.3493 16.0215 17.3343 16.008 17.319C12.8695 19.7628 8.32883 19.542 5.44365 16.6569C2.31946 13.5327 2.31946 8.46734 5.44365 5.34315C8.56785 2.21895 13.6332 2.21895 16.7574 5.34315ZM7.10052 10V12H15.1005V10L7.10052 10Z" fill="currentColor" />
-      </svg>
-    </span>
-    <span class="unit unit-text set-zoom">
-      <span class="subtitle">Zoom</span>
-      <span id="zoom">1.2</span>
-    </span>
-    <span id="zoom-in" class="unit unit-action set-zoom" title="Zoom in">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M15.3431 15.2426C17.6863 12.8995 17.6863 9.1005 15.3431 6.75736C13 4.41421 9.20101 4.41421 6.85786 6.75736C4.51472 9.1005 4.51472 12.8995 6.85786 15.2426C9.20101 17.5858 13 17.5858 15.3431 15.2426ZM16.7574 5.34315C19.6425 8.22833 19.8633 12.769 17.4195 15.9075C17.4348 15.921 17.4498 15.9351 17.4645 15.9497L21.7071 20.1924C22.0976 20.5829 22.0976 21.2161 21.7071 21.6066C21.3166 21.9971 20.6834 21.9971 20.2929 21.6066L16.0503 17.364C16.0356 17.3493 16.0215 17.3343 16.008 17.319C12.8695 19.7628 8.32883 19.542 5.44365 16.6569C2.31946 13.5327 2.31946 8.46734 5.44365 5.34315C8.56785 2.21895 13.6332 2.21895 16.7574 5.34315ZM10.1005 7H12.1005V10H15.1005V12H12.1005V15H10.1005V12H7.10052V10H10.1005V7Z" fill="currentColor" />
-      </svg>
-    </span>
+      <span id="hits-step" class="unit unit-action set-hits selected hidden" title="Count">
+        <span class="subtitle">Step</span>
+        <svg viewBox="0.2 0 20.2 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon fill="currentColor" points="6.5,7 14.5,7 14.5,8.5 6.5,8.5 6.5,7"/>
+          <polygon fill="currentColor" points="6.3,11 14.3,11 14.3,12.5 6.3,12.5 6.3,11"/>
+          <polygon fill="currentColor" points="9,4 10,4 9,15.5 8,15.5 9,4"/>
+          <polygon fill="currentColor" points="12,4 13,4 12,15.5 11,15.5 12,4"/>
+        </svg>
+      </span>
+      <span id="hits-sum" class="unit unit-action set-hits hidden" title="Cumulative sum">
+        <span class="subtitle">Total</span>
+        <svg viewBox="-4 -4 26 26" xmlns="http://www.w3.org/2000/svg" >
+          <path d="M14 6 14 3 3 3 7.5 9 3 15 14 15 14 12 13 12 13 13 7 13 10 9 7 5 13 5 13 6 Z" fill="currentColor" />
+        </svg>
+      </span>
+      <span class="unit unit-text set-hits hidden" title=""></span>
+    </div>
 
-    <span class="unit unit-force set-force hidden" title="Zoom out">
-      <span class="subtitle">Force</span>
-      <input id="force-range" type="range" value="30" min="0" max="100">
-    </span>
-    <span class="unit unit-force set-force hidden" title="Zoom in">
-      <span class="subtitle">Friction</span>
-      <input id="friction-range" type="range" value="30" min="0" max="100">
-    </span>
+    <div class="group">
+      <span id="zoom-out" class="unit unit-action set-zoom" title="Zoom out">
+        <svg viewBox="-2 -2 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M15.3431 15.2426C17.6863 12.8995 17.6863 9.1005 15.3431 6.75736C13 4.41421 9.20101 4.41421 6.85786 6.75736C4.51472 9.1005 4.51472 12.8995 6.85786 15.2426C9.20101 17.5858 13 17.5858 15.3431 15.2426ZM16.7574 5.34315C19.6425 8.22833 19.8633 12.769 17.4195 15.9075C17.4348 15.921 17.4498 15.9351 17.4645 15.9497L21.7071 20.1924C22.0976 20.5829 22.0976 21.2161 21.7071 21.6066C21.3166 21.9971 20.6834 21.9971 20.2929 21.6066L16.0503 17.364C16.0356 17.3493 16.0215 17.3343 16.008 17.319C12.8695 19.7628 8.32883 19.542 5.44365 16.6569C2.31946 13.5327 2.31946 8.46734 5.44365 5.34315C8.56785 2.21895 13.6332 2.21895 16.7574 5.34315ZM7.10052 10V12H15.1005V10L7.10052 10Z" fill="currentColor" />
+        </svg>
+      </span>
+      <span class="unit unit-zero set-zoom">
+        <span class="subtitle">Zoom</span>
+      </span>
+      <span id="zoom-in" class="unit unit-action set-zoom" title="Zoom in">
+        <svg viewBox="-2 -2 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M15.3431 15.2426C17.6863 12.8995 17.6863 9.1005 15.3431 6.75736C13 4.41421 9.20101 4.41421 6.85786 6.75736C4.51472 9.1005 4.51472 12.8995 6.85786 15.2426C9.20101 17.5858 13 17.5858 15.3431 15.2426ZM16.7574 5.34315C19.6425 8.22833 19.8633 12.769 17.4195 15.9075C17.4348 15.921 17.4498 15.9351 17.4645 15.9497L21.7071 20.1924C22.0976 20.5829 22.0976 21.2161 21.7071 21.6066C21.3166 21.9971 20.6834 21.9971 20.2929 21.6066L16.0503 17.364C16.0356 17.3493 16.0215 17.3343 16.008 17.319C12.8695 19.7628 8.32883 19.542 5.44365 16.6569C2.31946 13.5327 2.31946 8.46734 5.44365 5.34315C8.56785 2.21895 13.6332 2.21895 16.7574 5.34315ZM10.1005 7H12.1005V10H15.1005V12H12.1005V15H10.1005V12H7.10052V10H10.1005V7Z" fill="currentColor" />
+        </svg>
+      </span>
 
-    <span class="unit unit-text"></span>
+      <span class="unit unit-force set-force hidden" title="Change force" >
+        <span class="subtitle">Force</span>
+        <input id="force-range" type="range" value="30" min="0" max="100">
+      </span>
+      <span class="unit unit-force set-force hidden" title="Change friction" >
+        <span class="subtitle">Friction</span>
+        <input id="friction-range" type="range" value="30" min="0" max="100">
+      </span>
+    </div>
 
-    <span id="reset" class="unit unit-action disabled" title="Reset">
-      <span class="subtitle">Reset</span>
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M5.33929 4.46777H7.33929V7.02487C8.52931 6.08978 10.0299 5.53207 11.6607 5.53207C15.5267 5.53207 18.6607 8.66608 18.6607 12.5321C18.6607 16.3981 15.5267 19.5321 11.6607 19.5321C9.51025 19.5321 7.58625 18.5623 6.30219 17.0363L7.92151 15.8515C8.83741 16.8825 10.1732 17.5321 11.6607 17.5321C14.4222 17.5321 16.6607 15.2935 16.6607 12.5321C16.6607 9.77065 14.4222 7.53207 11.6607 7.53207C10.5739 7.53207 9.56805 7.87884 8.74779 8.46777L11.3393 8.46777V10.4678H5.33929V4.46777Z" fill="currentColor" />
-      </svg>
-    </span>
+    <div class="group" style="flex: 1;">
 
-    <span id="decstep" class="unit unit-action disabled" title="Previous step">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M18 17L10 12L18 7V17Z" fill="currentColor" />
-        <path d="M6 7H9V17H6V7Z" fill="currentColor" />
-      </svg>
-    </span>
-    <span class="unit unit-text">
-      <span class="subtitle">Step</span>
-      <span id="step" style="width:3vw;heigth:3vw;">1</span>
-    </span>
-    <span id="incstep" class="unit unit-action" title="Next step">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 17L14 12L6 7V17Z" fill="currentColor" />
-        <path d="M18 7H15V12V17H18V7Z" fill="currentColor" />
-      </svg>
-    </span>
+      <span class="unit unit-text" style="flex: 2;">
+        <span class="subtitle">Processing</span>
+        <div id="progress-bar">
+          <span>
+            <div id="progress-mask"></div>
+          </span>
+          <div id="progress-ui"></div>
+        </div>
+      </span>
 
-    <span class="unit unit-text"></span>
+      <span class="unit unit-text" style="flex: 1;">
+        <span class="subtitle">Step</span>
+        <span id="step" class="lcd"></span>
+      </span>
 
-    <span id="observer-1" class="unit unit-action" title="QM observer, random">
-      <svg viewBox="-6 -6 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M14.9451 7.05518C14.9451 5.95061 15.8405 5.05518 16.9451 5.05518C18.0496 5.05518 18.9451 5.95061 18.9451 7.05518C18.9451 8.15975 18.0496 9.05518 16.9451 9.05518C15.8405 9.05518 14.9451 8.15975 14.9451 7.05518Z" fill="currentColor" />
-        <path d="M16.9451 14.8921C15.8405 14.8921 14.9451 15.7875 14.9451 16.8921C14.9451 17.9967 15.8405 18.8921 16.9451 18.8921C18.0496 18.8921 18.9451 17.9967 18.9451 16.8921C18.9451 15.7875 18.0496 14.8921 16.9451 14.8921Z" fill="currentColor" />
-        <path d="M5.05518 16.8921C5.05518 15.7875 5.95061 14.8921 7.05518 14.8921C8.15975 14.8921 9.05518 15.7875 9.05518 16.8921C9.05518 17.9967 8.15975 18.8921 7.05518 18.8921C5.95061 18.8921 5.05518 17.9967 5.05518 16.8921Z" fill="currentColor" />
-        <path d="M7.05518 5.05518C5.95061 5.05518 5.05518 5.95061 5.05518 7.05518C5.05518 8.15975 5.95061 9.05518 7.05518 9.05518C8.15975 9.05518 9.05518 8.15975 9.05518 7.05518C9.05518 5.95061 8.15975 5.05518 7.05518 5.05518Z" fill="currentColor" />
-        <path d="M10 12C10 10.8954 10.8954 10 12 10C13.1046 10 14 10.8954 14 12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12Z" fill="currentColor" />
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M1 4C1 2.34315 2.34315 1 4 1H20C21.6569 1 23 2.34315 23 4V20C23 21.6569 21.6569 23 20 23H4C2.34315 23 1 21.6569 1 20V4ZM4 3H20C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3Z" fill="currentColor" />
-      </svg>
-    </span>
-    <span class="unit unit-zero">
-      <span class="subtitle">Observation/QM</span>
-    </span>
-    <span id="observer-2" class="unit unit-action" title="QM observer, max">
-      <span style="display:block; transform: scale(0.8,1.1);">MAX</span>
-    </span>
+      <span class="unit unit-text hidden" style="flex: 1;">
+        <span class="subtitle">Ops</span>
+        <span id="ops" class="lcd"></span>
+      </span>
 
-    <span class="unit unit-text"></span>
-    <span class="unit unit-text"></span>
+      <span class="unit unit-text hidden" style="flex: 1;">
+        <span class="subtitle">States</span>
+        <span id="states" class="lcd"></span>
+      </span>
 
-    <span id="model" class="unit unit-action" title="Edit model">
-      <span class="subtitle">Model</span>
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M13.325 3.05011L8.66741 20.4323L10.5993 20.9499L15.2568 3.56775L13.325 3.05011Z" fill="currentColor" />
-        <path d="M7.61197 18.3608L8.97136 16.9124L8.97086 16.8933L3.87657 12.1121L8.66699 7.00798L7.20868 5.63928L1.04956 12.2017L7.61197 18.3608Z" fill="currentColor" />
-        <path d="M16.388 18.3608L15.0286 16.9124L15.0291 16.8933L20.1234 12.1121L15.333 7.00798L16.7913 5.63928L22.9504 12.2017L16.388 18.3608Z" fill="currentColor" />
-      </svg>
-    </span>
-  </div>
+      <span class="unit unit-text" style="flex: 1;">
+        <span class="subtitle">Cliques</span>
+        <span id="cliques" class="lcd"></span>
+      </span>
 
-  <div id="export-box" class="hidden">
-    <span>Copy the model below by pressing CMD+C or Ctrl+C:</span>
-    <textarea id="export-json" spellcheck="false" wrap="on">
-    </textarea>
-  </div>
+      <span class="unit unit-text" style="flex: 1;">
+        <span class="subtitle">Dataset</span>
+        <span id="size" class="lcd"></span>
+      </span>
 
-  <div id="import-box" class="hidden">
-    <span>Paste the model below by pressing CMD+V or Ctrl+V:</span>
-    <textarea id="import-json" spellcheck="false" wrap="on">
-    </textarea>
+    </div>
+
+    <div class="group">
+      <span id="reset" class="unit unit-action" title="Reset">
+        <span class="subtitle">Reset</span>
+        <svg viewBox="-2 -1 26 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5.33929 4.46777H7.33929V7.02487C8.52931 6.08978 10.0299 5.53207 11.6607 5.53207C15.5267 5.53207 18.6607 8.66608 18.6607 12.5321C18.6607 16.3981 15.5267 19.5321 11.6607 19.5321C9.51025 19.5321 7.58625 18.5623 6.30219 17.0363L7.92151 15.8515C8.83741 16.8825 10.1732 17.5321 11.6607 17.5321C14.4222 17.5321 16.6607 15.2935 16.6607 12.5321C16.6607 9.77065 14.4222 7.53207 11.6607 7.53207C10.5739 7.53207 9.56805 7.87884 8.74779 8.46777L11.3393 8.46777V10.4678H5.33929V4.46777Z" fill="currentColor" />
+        </svg>
+      </span>
+
+      <span id="cancel" class="unit unit-action" title="Cancel processing">
+        <span class="subtitle">Cancel</span>
+        <span class="subtitle"></span>
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line stroke="currentColor" stroke-width="1.7" x1="7" y1="7" x2="13" y2="13" />
+          <line stroke="currentColor" stroke-width="1.7" x1="7" y1="13" x2="13" y2="7" />
+        </svg>
+      </span>
+    </div>
+
+    <div class="group">
+      <span id="prev" class="unit unit-action disabled" title="Previous step">
+        <svg viewBox="-1 -1 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 17L10 12L18 7V17Z" fill="currentColor" />
+          <path d="M6 7H9V17H6V7Z" fill="currentColor" />
+        </svg>
+      </span>
+      <span class="unit unit-zero">
+        <span class="subtitle">Prev</span>
+      </span>
+      <span id="yalp" class="unit unit-action disabled" title="Play in reverse">
+        <svg viewBox="2.5 2.2 20.5 20.2" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 12.3301L15 16.6603L15 8L9 12.3301Z" fill="currentColor" />
+        </svg>
+      </span>
+      <span id="play" class="unit unit-action" title="Play">
+        <svg viewBox="1.5 2.2 19.5 20.2" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 12.3301L9 16.6603L9 8L15 12.3301Z" fill="currentColor" />
+        </svg>
+      </span>
+      <span class="unit unit-zero">
+        <span class="subtitle">Next</span>
+      </span>
+      <span id="next" class="unit unit-action" title="Next step">
+        <svg viewBox="-1 -1 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 17L14 12L6 7V17Z" fill="currentColor" />
+          <path d="M18 7H15V12V17H18V7Z" fill="currentColor" />
+        </svg>
+      </span>
+    </div>
+
+    <div class="group">
+      <span class="unit unit-zero">
+        <div id="observer-box" class="box-bottom noselect hidden">
+          <span class="group">
+            <span id="observer-quantum" class="set-observer unit unit-action" title="Quantum observer">
+              <span class="subtitle">Quantum</span>
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.8" points="8,12 8,8 12,8 12,12 8,12"/>
+              </svg>
+            </span>
+          </span>
+          <span class="group">
+            <span id="observer-classical" class="set-observer unit unit-action" title="Classical observer">
+              <span class="subtitle">Classical</span>
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.8" points="8,7 8,3 12,3 12,7 8,7"/>
+                <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.8" points="8,12 8,8 12,8 12,12 8,12"/>
+                <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.8" points="8,17 8,13 12,13 12,17 8,17"/>
+                <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.8" points="3,9.5 3,5.5 7,5.5 7,9.5 3,9.5"/>
+                <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.8" points="3,14.5 3,10.5 7,10.5 7,14.5 3,14.5"/>
+                <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.8" points="13,9.5 13,5.5 17,5.5 17,9.5 13,9.5"/>
+                <polygon fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.8" points="13,14.5 13,10.5 17,10.5 17,14.5 13,14.5"/>
+              </svg>
+            </span>
+          </span>
+        </div>
+      </span>
+      <span id="observer" class="unit unit-action" title="Set observer">
+        <span class="subtitle">Observer</span>
+        <svg viewBox="-1 -1 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7ZM14 7C14 8.10457 13.1046 9 12 9C10.8954 9 10 8.10457 10 7C10 5.89543 10.8954 5 12 5C13.1046 5 14 5.89543 14 7Z" fill="currentColor" />
+          <path d="M16 15C16 14.4477 15.5523 14 15 14H9C8.44772 14 8 14.4477 8 15V21H6V15C6 13.3431 7.34315 12 9 12H15C16.6569 12 18 13.3431 18 15V21H16V15Z" fill="currentColor" />
+        </svg>
+      </span>
+
+      <span class="unit unit-zero">
+        <div id="filter-box" class="box-bottom noselect hidden">
+          <div class="group">
+            <span id="filter-1" class="set-filter unit unit-action">
+              <span class="subtitle">On/off</span>
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.5858 13.4142L7.75735 10.5858L6.34314 12L10.5858 16.2427L17.6568 9.1716L16.2426 7.75739L10.5858 13.4142Z" fill="currentColor" />
+              </svg>
+            </span>
+            <span class="unit unit-text" style="flex-basis: 9vw;">
+              <span id="filter-1-value" class="lcd">6</span>
+            </span>
+            <span class="unit unit-zero">
+              <span class="subtitle">Max cliques per loc</span>
+            </span>
+            <span class="unit unit-text">
+              <input id="filter-1-range" type="range" value="6" min="1" max="20">
+            </span>
+          </div>
+          <div class="group">
+            <span id="filter-2" class="set-filter unit unit-action">
+              <span class="subtitle">On/off</span>
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.5858 13.4142L7.75735 10.5858L6.34314 12L10.5858 16.2427L17.6568 9.1716L16.2426 7.75739L10.5858 13.4142Z" fill="currentColor" />
+              </svg>
+            </span>
+            <span class="unit unit-text" style="flex-basis: 9vw;">
+              <span id="filter-2-value" class="lcd">4</span>
+            </span>
+            <span class="unit unit-zero">
+              <span class="subtitle">Max states per clique</span>
+            </span>
+            <span class="unit unit-text">
+              <input id="filter-2-range" type="range" value="4" min="1" max="20">
+            </span>
+          </div>
+        </div>
+      </span>
+      <span id="filter" class="unit unit-action" title="Set filters">
+        <span class="subtitle">Filter</span>
+        <svg viewBox="-7 -8 46 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill="currentColor" stroke="currentColor" stroke-width="0.9" d="M26,6v0.233l-8.487,9.43L17,16.233V17v7.764l-2-1V17v-0.767l-0.513-0.57L6,6.233V6H26 M28,4H4v3  l9,10v8l6,3V17l9-10V4L28,4z" />
+        </svg>
+      </span>
+    </div>
+
+    <div class="group">
+      <span id="model" class="unit unit-action" title="Edit the model">
+        <span class="subtitle">Model</span>
+        <svg viewBox="-1 -1 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13.325 3.05011L8.66741 20.4323L10.5993 20.9499L15.2568 3.56775L13.325 3.05011Z" fill="currentColor" />
+          <path d="M7.61197 18.3608L8.97136 16.9124L8.97086 16.8933L3.87657 12.1121L8.66699 7.00798L7.20868 5.63928L1.04956 12.2017L7.61197 18.3608Z" fill="currentColor" />
+          <path d="M16.388 18.3608L15.0286 16.9124L15.0291 16.8933L20.1234 12.1121L15.333 7.00798L16.7913 5.63928L22.9504 12.2017L16.388 18.3608Z" fill="currentColor" />
+        </svg>
+      </span>
+    </div>
+
   </div>
 
   <div id="legend" class="noselect">
@@ -1326,7 +1211,12 @@ document.addEventListener('DOMContentLoaded', function(e) {
         <ellipse cx="10" cy="10" rx="10" ry="10" fill="lightgray" />
         <rect x="25" y="0" width="75" height="20" fill="url(#grad)" />
       </svg>
-      <br>Thread count
+    </div>
+    <div id="legend-ends" class="legend hidden">
+      Paths
+    </div>
+    <div id="legend-paths" class="legend hidden">
+      Action
     </div>
   </div>
 
