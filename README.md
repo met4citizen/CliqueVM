@@ -293,6 +293,6 @@ Copy the JSON string below and import it to the app:
   "init":"return [{x:0,y:0,z:0},{x:0,y:0,z:0}];",
   "oper":"let s=[],t=[];\nfor( let p of c ) {\n  let [a,b]=this.clone([p,p]);\n  let i=this.shuffle(['x','y','z'])[0];\n  if (a[i]<3) a[i]++;\n  if (b[i]>-3) b[i]--;\n  s.push(a);\n  t.push(b);\n}\nreturn [s,t];",
   "coord":"return s.x+','+s.y+','+s.z;",
-  "detectors":"return Array.from({length:7},(_,i)=>({x:i-3,y:0,z:0}));"
+  "detectors":"return Array.from({length:7},(_,i)=>i-3+',0,0');"
 }
 ```
