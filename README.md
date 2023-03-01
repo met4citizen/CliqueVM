@@ -32,22 +32,22 @@ All physical systems evolve over time. We can represent this with
 a mathematical object called an operator that maps the state of the system
 at time $t$ into another state at $t+1$. When we run this operator
 iteratively, we get a computational object called a program, a sequence
-of operations, acting on system states.
+of operations, acting on states.
 
 Often the system has so many possible states that it is very hard or
 impossible to describe the operator. Fortunately, all physical interactions
 are, as far as we know, spacelike and local. This means that instead
 of acting on the full state of the system we can process smaller collections
-of microstates independently of each other. In our framework, we call these
-collections cliques.
+of microstates independently of each other. We call these collections cliques,
+because they show up as maximal cliques in our graphs.
 
 For two programs to end up spacelike and local, their computational
 histories must be mutually consistent and they must compute the same function.
 More specifically, their lowest common ancestors (LCAs) must be operations,
 not states, and they have to belong to the same equivalence class
 of programs. Both of these properties are relative. If and when these
-relations change, we end up with not one but multiple threads that can
-branch, merge and run in parallel.
+pairwise relations change, we end up with not one but multiple threads
+that can branch, merge and run in parallel.
 
 A multithreaded system, real or simulated, can be classical, quantum
 mechanical, or some mix of the two, depending on the operator. The thing
@@ -57,7 +57,7 @@ is pairwise consistent with both $B$ and
 $C$, but
 $B$ and
 $C$ are not consistent with each other. Graph-theoretically these are
-called open triplets, second-order inconsistencies, that break local
+called open triplets. They are second-order inconsistencies that break local
 classical states into two or more overlapping maximal cliques.
 
 Once we know how to calculate these maximal cliques, we can use them as
@@ -76,7 +76,7 @@ and other computational models.
 
 ## Theory
 
-Let $H$ be a 3-partite directed acyclic graph (DAG) with the following
+Let $H$ be a 3-partite directed acyclic graph (DAG) with the following three
 parts: operations $V_o$,
 states $V_s$, and
 maximal cliques $V_c$.
@@ -89,11 +89,11 @@ of operations and output states.
 
 $\displaystyle\qquad L_c=\big\lbrace v \in V_c\mid\mathbf{deg^+} (v)=0 \big\rbrace$
 
-$\displaystyle\qquad \hat{M}: L_c\longrightarrow (V_o \cup V_s, V_o{\times}V_s)$
+$\displaystyle\qquad \hat{M}: L_c\longrightarrow (V_o \cup V_s, E),\quad E\subseteq V_o{\times}V_s$
 
 In order to calculate the new generation of maximal cliques, we start from
 the latest operator-generated states $L_s$. Two states are local and spacelike
-if and only if they are equivalent and their
+if and only if they are equivalent $\sim$ and their
 [lowest common ancestors](https://en.wikipedia.org/wiki/Lowest_common_ancestor)
 (LCAs) are operations. Let an undirected graph $G$ track all such pairs.
 
@@ -127,14 +127,14 @@ calculated, a new iteration (step) can be started.
 If the operator is deterministic, the system, too, will be deterministic.
 However, if the operator generates more that one operation, even
 a deterministic system can become quantum mechanical. In these cases
-the evolution will nevertheless appear probabilistic to any internal
-observer due to self-locating uncertainty.
+the evolution will appear probabilistic to any internal observer due to
+self-locating uncertainty.
 
 Under self-locating uncertainty, an observation becomes a process
 in which the observer interacts locally in a way that resolves
 all the second-order inconsistencies (superpositions). These
 interactions make new shortcuts through the ancestral structure. This
-in turn prevents certain future interactions, which appears to the
+in turn prevents certain future interactions, which appears to the internal
 observer as a wave-function collapse.
 
 From the internal observer's point of view, the proportion of all
@@ -157,12 +157,10 @@ The framework offers the following graph-based views:
 
 VIEW | DESCRIPTION
 :-: | :--
-<sup>Trace</sup><br/>![](img/trace.svg) | Multithread trace views the evolution of the model as a full 3-partite directed acyclic graph (DAG).
-<sup>Snap</sup><br/>![](img/snap.svg) | Snaphot of the trace at the current step. Snapshot is a hypersurface (foliation) of the multithreaded evolution.
-<sup>Space</sup><br/>![](img/space.svg) | Spatial 3D projection of the evolution. Each node represent a coordinate location and two location are connected with an undirected edge if one is a direct parent of the other.
-<sup>Hits</sup><br/>![](img/hits.svg) | Detector hit counts as a bar chart.
-
-Each of the views have options that lets the user filter out details.
+<sup>Trace</sup><br/>![](img/trace.svg) | Multithread trace views the evolution of the system as a directed acyclic graph. Option `Full` shows the full 3-partite DAG with local spacetime clusters. Option `Cliques` shows cliques and local clusters ignoring operations and states. Option `Locs` shows only spacetime locations and their coordinates.
+<sup>Snap</sup><br/>![](img/snap.svg) | Snaphot (hypersurface/foliation) of the multithread trace at the current step. Option `States` shows the snapshot at the level of states. Two states are connected if they are local and consistent (spacelike) relative to each other. Option `Cliques` shows the snapshot at the level of cliques. Two cliques are connected if the overlap, that is, share common states. Option `Locs` shows the snapshot at the level of locations. Two locations are connected if they have share an immediate parent location.
+<sup>Space</sup><br/>![](img/space.svg) | Spatial 3D projection of the evolution. Each node represent a spatial coordinate. Two coordinates are connected with an undirected edge when one of them has been a direct parent of another. Option `Paths` shows the relative density of operations leading to each coordinate at the current step. Option `Action` shows the relative density calculated over time starting from the initial states.
+<sup>Hits</sup><br/>![](img/hits.svg) | Detector hit counts as a bar chart. Option `Step` shows the number of hits at the current step. Option `Total` shows the total count starting from the initial state.
 
 The previous or the next step can be calculated by clicking the arrows.
 `Reset` returns the model to its initial state. `Cancel` aborts current
@@ -177,9 +175,8 @@ and export/import models as a JSON strings.
 A model is a set of JavaScript functions:
 
 The `INITIAL STATE` returns an array of initial states. A state can be
-any valid JavaScript data structure.
+any valid JavaScript data structure. An example:
 
-An example:
 ```javascript
 /**
 /* @return {any[]} Array of initial states.
@@ -230,26 +227,26 @@ All functions get executed with the "use strict" directive.
 **NOTE:** The JavaScript source code in the JSON string is used to
 create a new `Function` object inside a Web Worker. This means
 that the code will have no DOM access and critical issues such as
-infinite loops can be easily solved by reseting the system, which always
-terminates the worker thread. However, always check the model before importing!
+infinite loops can be easily solved by terminating the worker (reset).
+However, for security reasons, always check the model before importing!
 
 
 ## Model API
 
-In order to keep functions short, the framework offers a simple API with
-a set of commonly used utility functions and generators. All the API functions
-are methods of a class `ModelAPI`. In the app they can be called
-with `this`, for example: `this.id()`.
+In order to keep the functions short, the framework offers a simple API
+(`ModelAPI` class) with a set of commonly used utility functions and
+generators. In the app these methods can be called with `this`, for
+example: `this.id()`.
 
 FUNCTION| DESCRIPTION
 :-- | :--
 <nobr>`id()`</nobr> | Returns a new unique number from [0,1,2,3...]. Reseting the model also resets the id counter.
-<nobr>`set(key,value)`</nobr> | Set option. Currently supports keys `observer` (1=quantum, 2=classic), `maxcliquesperloc` and `maxstatesperclique`.
+<nobr>`set(key,value)`</nobr> | Set option. Currently supports the following keys: `observer` (1=quantum, 2=classic), `maxcliquesperloc` (number) and `maxstatesperclique` (number).
 <nobr>`get(key)`</nobr> | Get option value.
 <nobr>`clone(x)`</nobr> | Makes a deep copy of the given data structure.
 <nobr>`shuffle(arr)`</nobr> | Shuffles an array in place using the Fisher-Yates shuffle.
 <nobr>`*comb(arr,[size])`</nobr> | Generates all combinations of a set. `size` is the length of the combination. An example:<br/>`comb([a,b,c],2)` -> `[a,b] [a,c] [b,c]`
-<nobr>`*perm(arr,[size])`</nobr> | Generates all combinations of a set. `size` is the length of the permutation. An example:<br/>`perm([a,b,c],2)` -> `[a,b] [a,c] [b,a] [b,c] [c,a] [c,b]`
+<nobr>`*perm(arr,[size])`</nobr> | Generates all permutations of a set. `size` is the length of the permutation. An example:<br/>`perm([a,b,c],2)` -> `[a,b] [a,c] [b,a] [b,c] [c,a] [c,b]`
 <nobr>`*cart(...sets)`</nobr> | Generates the cartesian product of the given sets. An example:<br/>`cart([a,b],[c,d,e])` -> `[a,c] [a,d] [a,e] [b,c] [b,d] [b,e]`
 
 **TODO:** Add utility functions for typical use cases such as graph and
