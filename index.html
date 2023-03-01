@@ -15,7 +15,7 @@
   <style>
   html{ width:100%; height:100%; font-size: 1vw; font-family: Verdana, Geneva, sans-serif; }
   body{ width: 100%; height: 100%; margin: 0; padding: 0; background-color: white; color: #505050; line-height:1vw; overflow: hidden; text-align: left; touch-action: manipulation; }
-  h1{font-family: "Courier",monospace; font-size:14px; line-height: 14px; color:#404040; font-weight:bold;}
+  h1{ color: slategray; padding: 3px 20px; font-family: "Courier",monospace; font-weight: bold; margin: 10px 0 0 0; cursor: pointer; vertical-align: middle; font-size: 14px; }
 
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -33,15 +33,12 @@
   #resizer:hover{cursor: ew-resize;}
   #panel { flex: 1; display: flex; margin: 0; padding:1vw 0; vertical-align:top; text-align: center; overflow:scroll; display:none; border-top: 1px solid lightgray; border-right: 1px solid lightgray;}
   #text { margin:0; padding: 0; flex: 1; resize: none; font-family: "Courier",monospace; font-size:14px; line-height: 14px; color:#404040; background-color: white; text-align: left; }
-  details { position: relative; margin:0; padding:0; }
-  details summary { color: slategray; padding: 3px 10px; font-weight: bold; margin: 0; cursor: pointer; vertical-align: middle; }
-  details p { display: block; margin: 0 0 0 30px; padding: 5px 0;  white-space: pre-line; overflow-wrap: break-word; }
   .code { resize: none; min-height: 20px; margin:5px 5px 5px 15px; padding: 0px; border: 1px solid lightgrey; overflow: hidden !important; font-size:13px; opacity: 1; }
   .js { margin:5px 0 5px 15px; padding: 4px; white-space: nowrap; opacity: 0.7; }
   .js-key { color: purple; }
   .js-type { color: steelblue; font-weight: bold; }
   .js-param { font-weight: bold; }
-  .js-test { display: inline-block; position: absolute; font-size: 10px; padding: 0 4px; margin-left: 10px; color: white; border-radius: 2px; opacity: 0.7; }
+  .js-test { display: inline-block; line-height: 11px; font-size: 10px; padding: 0 4px; margin-left: 10px; color: white; border-radius: 2px; opacity: 0.7; }
   .js-debug { color: darkred; font-weight: bold; white-space: wrap;}
 
 
@@ -70,8 +67,8 @@
   input[type="range"]:focus::-webkit-slider-thumb { border: 1px solid #002040; outline: 2px solid #002040; outline-offset: 1px; }
   input[type="range"]:focus::-moz-range-thumb { border: 1px solid #002040; outline: 2px solid #002040; outline-offset: 1px; }
 
-  .box-left { display: flex; position: absolute; right: 0.9vw; z-index: 5; background: white; border: 1px solid lightgray; padding: 0.5vw; line-height: 1vw; }
-  .box-bottom { display: flex; flex-direction: column; position: absolute; top: 3.4vw; padding: 1vw 0 0.5vw 0; z-index: 5; background: white; border: 1px solid lightgray; }
+  .box-left { display: flex; position: absolute; right: 0.9vw; z-index: 5; background: white; border: 1px solid lightgray; padding: 0.5vw; line-height: 1vw; ursor: pointer; pointer-events: auto; }
+  .box-bottom { display: flex; flex-direction: column; position: absolute; top: 3.4vw; padding: 1vw 0 0.5vw 0; z-index: 5; background: white; border: 1px solid lightgray; ursor: pointer; pointer-events: auto; }
   #observer-box { width: 4.8vw; margin-left: -1vw; }
   #filter-box { width: 16vw; margin-left: -1vw; right: -4.3vw; }
   #export-box { top: -1.5vw; width: 25vw; height: 3.5vw; }
@@ -336,9 +333,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
     if ( prevcode === currcode ) {
       d3.select("#deploy").classed('highlight',false);
     }
-  }).on('input change keydown', function(e) {
-    this.style.height = 0;
-    this.style.height = this.scrollHeight + "px";
   });
 
   // Zoom in/out
@@ -354,13 +348,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
     zoom(0.8);
   }).on('mouseup mouseleave', function(e) {
     if ( timerPress ) timerPress = clearInterval(timerPress);
-  });
-
-
-  // Toggle details, bug fix for hidden divs not resizing
-  d3.selectAll('details').on('toggle', function(e) {
-    let c = d3.select(this).select('.code');
-    if ( !c.empty() ) c.dispatch('change');
   });
 
   // Reset
@@ -431,7 +418,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
     if ( !d3.select(this).classed('selected') ) {
       d3.select(this).classed('selected', true);
       d3.selectAll('#panel,#toolbar-panel').style('display','flex');
-      d3.selectAll('.code').dispatch("input");
       d3.select('#resizer').style('display','block');
       d3.select('#graph').style('flex','0 0 ' + graphw + '%');
       d3.select('#legend').style('right',(100-graphw)+'%');
@@ -632,6 +618,9 @@ document.addEventListener('DOMContentLoaded', function(e) {
         d3.select("#" + x + "-debug")
           .text(r[x].error ? r[x].error : '');
       });
+      if ( !r.model.pass ) {
+        alert(r.model.error);
+      }
     });
   });
 
@@ -702,44 +691,41 @@ document.addEventListener('DOMContentLoaded', function(e) {
     <div id="panel">
 
       <div id="text" spellcheck="false">
-        <details>
-          <summary class="noselect">INITIAL STATE<span id="init-test" class="js-test hidden"></span></summary>
-          <p class="js">
-            <span class="js-key">@return</span> {<span class="js-type">any[]</span>} Array of initial states.
-          </p>
-          <div id="init" class="code"></div>
-          <p id="init-debug" class="js js-debug">
-          </p>
-        </details>
-        <details open>
-          <summary class="noselect">OPERATOR<span id="oper-test" class="js-test hidden"></span></summary>
-          <p class="js">
-            <span class="js-key">@param</span> {<span class="js-type">any[]</span>} <span class="js-param">c</span> Clique, array of input states<br>
-            <span class="js-key">@return</span> {<span class="js-type">any[][]</span>} New operations with output states.
-          </p>
-          <div id="oper" class="code"></div>
-          <p id="oper-debug" class="js js-debug">
-          </p>
-        </details>
-        <details>
-          <summary class="noselect">COORDINATE / EQUIVALENCE<span id="coord-test" class="js-test hidden"></span></summary>
-          <p class="js">
-            <span class="js-key">@param</span> {<span class="js-type">any</span>} <span class="js-param">s</span> State<br>
-            <span class="js-key">@return</span> {<span class="js-type">string</span>} Spatial coordinate.
-          </p>
-          <div id="coord" class="code"></div>
-          <p id="coord-debug" class="js js-debug">
-          </p>
-        </details>
-        <details>
-          <summary class="noselect">DETECTORS<span id="detectors-test" class="js-test hidden"></span></summary>
-          <p class="js">
-            <span class="js-key">@return</span> {<span class="js-type">string[]</span>} Array of detector coordinates.
-          </p>
-          <div id="detectors" class="code"></div>
-          <p id="detectors-debug" class="js js-debug">
-          </p>
-        </details>
+
+        <h1 class="noselect">INITIAL STATE<span id="init-test" class="js-test hidden"></span></h1>
+        <p class="js">
+          <span class="js-key">@return</span> {<span class="js-type">any[]</span>} Array of initial states.
+        </p>
+        <div id="init" class="code"></div>
+        <p id="init-debug" class="js js-debug">
+        </p>
+
+        <h1 class="noselect">OPERATOR<span id="oper-test" class="js-test hidden"></span></h1>
+        <p class="js">
+          <span class="js-key">@param</span> {<span class="js-type">any[]</span>} <span class="js-param">c</span> Clique, array of input states<br>
+          <span class="js-key">@return</span> {<span class="js-type">any[][]</span>} New operations with output states.
+        </p>
+        <div id="oper" class="code"></div>
+        <p id="oper-debug" class="js js-debug">
+        </p>
+
+        <h1 class="noselect">COORDINATE / EQUIVALENCE<span id="coord-test" class="js-test hidden"></span></h1>
+        <p class="js">
+          <span class="js-key">@param</span> {<span class="js-type">any</span>} <span class="js-param">s</span> State<br>
+          <span class="js-key">@return</span> {<span class="js-type">string</span>} Spatial coordinate.
+        </p>
+        <div id="coord" class="code"></div>
+        <p id="coord-debug" class="js js-debug">
+        </p>
+
+        <h1 class="noselect">DETECTORS<span id="detectors-test" class="js-test hidden"></span></h1>
+        <p class="js">
+          <span class="js-key">@return</span> {<span class="js-type">string[]</span>} Array of detector coordinates.
+        </p>
+        <div id="detectors" class="code"></div>
+        <p id="detectors-debug" class="js js-debug">
+        </p>
+
       </div>
     </div>
 
