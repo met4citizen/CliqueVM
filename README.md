@@ -248,6 +248,8 @@ FUNCTION| DESCRIPTION
 <nobr>`*comb(arr,[size])`</nobr> | Generates all combinations of a set. `size` is the length of the combination. An example:<br/>`comb([a,b,c],2)` -> `[a,b] [a,c] [b,c]`
 <nobr>`*perm(arr,[size])`</nobr> | Generates all permutations of a set. `size` is the length of the permutation. An example:<br/>`perm([a,b,c],2)` -> `[a,b] [a,c] [b,a] [b,c] [c,a] [c,b]`
 <nobr>`*cart(...sets)`</nobr> | Generates the cartesian product of the given sets. An example:<br/>`cart([a,b],[c,d,e])` -> `[a,c] [a,d] [a,e] [b,c] [b,d] [b,e]`
+<nobr>`BronKerbosch(V,N)`</nobr> | Finds maximal cliques of the set `V` using the Bron-Kerbosch algorithm. `N` is a WeakMap of neighbours for each vertex.
+<nobr>`rewriteStr(s,rules)`</nobr> | Rewrite string `s` with `rules`. Return all overlapping maximal results. For example:<br/> `rewriteStr('BAA',[['BA','AB'],['A','C']])` -> `['BCC', 'ABC']`.
 
 **TODO:** Add utility functions for typical use cases such as graph and
 string rewriting.
