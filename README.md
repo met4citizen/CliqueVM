@@ -157,9 +157,9 @@ The framework offers the following graph-based views:
 
 VIEW | DESCRIPTION
 :-: | :--
-<sup>Trace</sup><br/>![](img/trace.svg) | Multithread trace views the evolution of the system as a directed acyclic graph. Option `Full` shows the full 3-partite DAG with local spacetime clusters. Option `Cliques` shows cliques and local clusters ignoring operations and states. Option `Locs` shows only spacetime locations and their coordinates.
-<sup>Snap</sup><br/>![](img/snap.svg) | Snaphot (hypersurface/foliation) of the multithread trace at the current step. Option `States` shows the snapshot at the level of states. Two states are connected if they are local and consistent (spacelike) relative to each other. Option `Cliques` shows the snapshot at the level of cliques. Two cliques are connected if the overlap, that is, share common states. Option `Locs` shows the snapshot at the level of locations. Two locations are connected if they have share an immediate parent location.
-<sup>Space</sup><br/>![](img/space.svg) | Spatial 3D projection of the evolution. Each node represent a spatial coordinate. Two coordinates are connected with an undirected edge when one of them has been a direct parent of another. Option `Paths` shows the relative density of operations leading to each coordinate at the current step. Option `Action` shows the relative density calculated over time starting from the initial states.
+<sup>Trace</sup><br/>![](img/trace.svg) | Multithread trace views the evolution of the system as a directed acyclic graph. Option `Full` shows the full 3-partite DAG with local spacetime clusters. Option `Cliques` shows cliques and local clusters ignoring operations and states. Option `Locs` shows only spacetime locations and their spatial coordinates.
+<sup>Snap</sup><br/>![](img/snap.svg) | Snapshot (hypersurface/foliation) of the multithread trace at the current step. Option `States` shows the snapshot at the level of states. Two states are connected if they are local and consistent (spacelike) relative to each other. Option `Cliques` shows the snapshot at the level of cliques. Two cliques are connected if they overlap, that is, share common states. Option `Locs` shows the snapshot at the level of locations. Two locations are connected if they have an immediate parent location.
+<sup>Space</sup><br/>![](img/space.svg) | Spatial 3D projection of the evolution. Each node represents a spatial coordinate. Two coordinates are connected with an undirected edge when one of them has been a direct parent of another. Option `Paths` shows the relative density of operations leading to each coordinate at the current step. Option `Action` shows the relative density calculated over time starting from the initial state.
 <sup>Hits</sup><br/>![](img/hits.svg) | Detector hit counts as a bar chart. Option `Step` shows the number of hits at the current step. Option `Total` shows the total count starting from the initial state.
 
 The previous or the next step can be calculated by clicking the arrows.
@@ -170,7 +170,7 @@ processing and cancel the job queue.
 ## Models
 
 By clicking `Model`, the user can specify his own model, deploy the model,
-and export/import models as a JSON strings.
+and export/import models as JSON strings.
 
 A model is a set of JavaScript functions:
 
@@ -202,7 +202,8 @@ return [ operation1 ];
 
 The `COORDINATE / EQUIVALENCE` gets a state as its input and returns its
 coordinate label as a string. The coordinate label is used to test whether
-two states are equivalent (local). An example:
+two states are equivalent (local). This state equivalence could also be seen
+as an observer-theoretic coarse-graining and/or encoding function. An example:
 
 ```javascript
 /**
