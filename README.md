@@ -324,6 +324,9 @@ Experimental sequence where fibonacci modulus is converted to a complex with 1/2
 Copy the JSON string below and import it to the app:
 ```json
 {
-{"init":"return [[0,1]];","oper":"let s=[];\nfor( let p of c ) {\n  let [a]=this.clone([p]);\n  a[0] = a[1]\n  a[1] = (p[0]+p[1])%1050\n  // console.log(a)\n  s.push(a);\n}\n\nreturn [s];","coord":"function convert2Rectangle(polarReal, polarAngle){\n    var real = Math.cos(polarAngle*Math.PI/180)*polarReal\n    var imag = Math.sin(polarAngle*Math.PI/180)*polarReal\n    var RectNumber = {'real':real,'imag':imag}\n    return RectNumber\n}\n\nlet dis = convert2Rectangle(0.5,s[1])\n//return Math.round(dis.real)+\"x\"+Math.round(dis.imag)+\"\"\nreturn dis.real+\"x\"+dis.imag+\"\"","detectors":"return ['0','1','2','3','4','5','6','7','8','9'];"}
+  "init":"return [[0,1]];",
+  "oper":"let s=[];\nfor( let p of c ) {\n  let [a]=this.clone([p]);\n  a[0] = a[1]\n  a[1] = (p[0]+p[1])%1050\n  // console.log(a)\n  s.push(a);\n}\n\nreturn [s];",
+  "coord":"function convert2Rectangle(polarReal, polarAngle){\n    var real = Math.cos(polarAngle*Math.PI/180)*polarReal\n    var imag = Math.sin(polarAngle*Math.PI/180)*polarReal\n    var RectNumber = {'real':real,'imag':imag}\n    return RectNumber\n}\n\nlet dis = convert2Rectangle(0.5,s[1])\n//return Math.round(dis.real)+\"x\"+Math.round(dis.imag)+\"\"\nreturn dis.real+\"x\"+dis.imag+\"\"",
+  "detectors":"return ['0','1','2','3','4','5','6','7','8','9'];"
 }
 ```
