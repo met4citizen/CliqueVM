@@ -299,3 +299,20 @@ Copy the JSON string below and import it to the app:
   "detectors":"return Array.from({length:7},(_,i)=>i-3+',0,0');"
 }
 ```
+
+
+#### Fibonacci modulus cliques 3D
+Jacob Yatsko explains Fibonacci modulus sequences in the following video <br/>
+<a href="https://youtu.be/o1eLKODSCqw?t=363">A New Way to Look at Fibonacci Numbers</a><br/>
+The following is the same view turned into a 3-dimensional view. You can easily change the modulus in the editor and redeploy the updated code.<br/>
+<img src="img/fibonacci3d.jpg" width="512"><br/>
+
+Copy the JSON string below and import it to the app:
+```json
+{
+   "init":"return [[0,1]];",
+   "oper":"let s=[];\nfor( let p of c ) {\n  let [a]=this.clone([p]);\n  a[0] = a[1]\n  a[1] = (p[0]+p[1]) % 10\n  s.push(a);\n}\n\nreturn [s];",
+   "coord":"return s[1]+\"\"",
+   "detectors":"return ['0','1','2','3','4','5','6','7','8','9'];"
+}
+```
