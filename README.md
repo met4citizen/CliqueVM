@@ -330,3 +330,13 @@ Copy the JSON string below and import it to the app:
   "detectors":"return ['0','1','2','3','4','5','6','7','8','9'];"
 }
 ```
+
+#### Mandelbrot fibonacci modulus sequence
+Experimental combination of repeating fibonacci sequence with modulus 50 and the fibonacci sequence is inputed as mandelbrot pixel positions with height and width of 1000 pixels mandelbrot.
+
+The fractality should emerge between the nodes of the mandelbrot pixel node 80 and the outside pixels nodes 1,2,3.
+
+Copy the JSON string below and import it to the app:
+```json
+{"init":"this.MAX_ITERATION = 80\nthis.REAL_SET = { start: -2, end: 1 }\nthis.IMAGINARY_SET = { start: -1, end: 1 }\n\nthis.mandelbrot = function mandelbrot(c) {\n    let z = { x: 0, y: 0 }, n = 0, p, d;\n    do {\n        p = {\n            x: Math.pow(z.x, 2) - Math.pow(z.y, 2),\n            y: 2 * z.x * z.y\n        }\n        z = {\n            x: p.x + c.x,\n            y: p.y + c.y\n        }\n        d = Math.sqrt(Math.pow(z.x, 2) + Math.pow(z.y, 2))\n        n += 1\n    } while (d <= 2 && n < this.MAX_ITERATION)\n    return [n, d <= 2]\n}\n\nreturn [[0,1]];","oper":"let s=[];\nfor( let p of c ) {\n  let [a]=this.clone([p]);\n  a[0] = a[1]\n  a[1] = (p[0]+p[1]) % 500\n  s.push(a);\n}\n\nreturn [s];","coord":"const WIDTH = 1000\nconst HEIGHT = 1000\nlet complex = {\n                x: this.REAL_SET.start + (s[0]/WIDTH) * (this.REAL_SET.end - this.REAL_SET.start),\n                y: this.IMAGINARY_SET.start + (s[1]/HEIGHT) * (this.IMAGINARY_SET.end - this.IMAGINARY_SET.start)\n          }\nconsole.log(\"Mandel \", s,\" - \", complex, \" -> \", this.mandelbrot(complex))\nlet [mandel, isMandelbrotSet] =  this.mandelbrot(complex)\n\nreturn mandel+\"\"","detectors":"return ['80','1','2','3','4','5','6','7','8','9'];"}
+```
