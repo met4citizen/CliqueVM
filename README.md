@@ -299,3 +299,44 @@ Copy the JSON string below and import it to the app:
   "detectors":"return Array.from({length:7},(_,i)=>i-3+',0,0');"
 }
 ```
+
+
+#### Fibonacci modulus cliques 3D
+Jacob Yatsko explains Fibonacci modulus sequences in the following video <br/>
+<a href="https://youtu.be/o1eLKODSCqw?t=363">A New Way to Look at Fibonacci Numbers</a><br/>
+The following is the same view turned into a 3-dimensional view. You can easily change the modulus in the editor and redeploy the updated code.<br/>
+<img src="img/fibonacci3d.jpg" width="512"><br/>
+
+Copy the JSON string below and import it to the app:
+```json
+{
+   "init":"return [[0,1]];",
+   "oper":"let s=[];\nfor( let p of c ) {\n  let [a]=this.clone([p]);\n  a[0] = a[1]\n  a[1] = (p[0]+p[1]) % 10\n  s.push(a);\n}\n\nreturn [s];",
+   "coord":"return s[1]+\"\"",
+   "detectors":"return ['0','1','2','3','4','5','6','7','8','9'];"
+}
+```
+
+
+#### Complex fibonacci modulus sequence
+Experimental sequence where fibonacci modulus is converted to a complex with 1/2 0.5 real part and sequence as imaginary. Graph shows a recurring structures emerging. 
+
+Copy the JSON string below and import it to the app:
+```json
+{
+  "init":"return [[0,1]];",
+  "oper":"let s=[];\nfor( let p of c ) {\n  let [a]=this.clone([p]);\n  a[0] = a[1]\n  a[1] = (p[0]+p[1])%1050\n  // console.log(a)\n  s.push(a);\n}\n\nreturn [s];",
+  "coord":"function convert2Rectangle(polarReal, polarAngle){\n    var real = Math.cos(polarAngle*Math.PI/180)*polarReal\n    var imag = Math.sin(polarAngle*Math.PI/180)*polarReal\n    var RectNumber = {'real':real,'imag':imag}\n    return RectNumber\n}\n\nlet dis = convert2Rectangle(0.5,s[1])\n//return Math.round(dis.real)+\"x\"+Math.round(dis.imag)+\"\"\nreturn dis.real+\"x\"+dis.imag+\"\"",
+  "detectors":"return ['0','1','2','3','4','5','6','7','8','9'];"
+}
+```
+
+#### Mandelbrot fibonacci modulus sequence
+Experimental combination of repeating fibonacci sequence with modulus 50 and the fibonacci sequence is inputed as mandelbrot pixel positions with height and width of 1000 pixels mandelbrot.
+
+The fractality should emerge between the nodes of the mandelbrot pixel node 80 and the outside pixels nodes 1,2,3.
+
+Copy the JSON string below and import it to the app:
+```json
+{"init":"this.MAX_ITERATION = 80\nthis.REAL_SET = { start: -2, end: 1 }\nthis.IMAGINARY_SET = { start: -1, end: 1 }\n\nthis.mandelbrot = function mandelbrot(c) {\n    let z = { x: 0, y: 0 }, n = 0, p, d;\n    do {\n        p = {\n            x: Math.pow(z.x, 2) - Math.pow(z.y, 2),\n            y: 2 * z.x * z.y\n        }\n        z = {\n            x: p.x + c.x,\n            y: p.y + c.y\n        }\n        d = Math.sqrt(Math.pow(z.x, 2) + Math.pow(z.y, 2))\n        n += 1\n    } while (d <= 2 && n < this.MAX_ITERATION)\n    return [n, d <= 2]\n}\n\nreturn [[0,1]];","oper":"let s=[];\nfor( let p of c ) {\n  let [a]=this.clone([p]);\n  a[0] = a[1]\n  a[1] = (p[0]+p[1]) % 500\n  s.push(a);\n}\n\nreturn [s];","coord":"const WIDTH = 1000\nconst HEIGHT = 1000\nlet complex = {\n                x: this.REAL_SET.start + (s[0]/WIDTH) * (this.REAL_SET.end - this.REAL_SET.start),\n                y: this.IMAGINARY_SET.start + (s[1]/HEIGHT) * (this.IMAGINARY_SET.end - this.IMAGINARY_SET.start)\n          }\nconsole.log(\"Mandel \", s,\" - \", complex, \" -> \", this.mandelbrot(complex))\nlet [mandel, isMandelbrotSet] =  this.mandelbrot(complex)\n\nreturn mandel+\"\"","detectors":"return ['80','1','2','3','4','5','6','7','8','9'];"}
+```
