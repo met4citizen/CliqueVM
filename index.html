@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html>
 <head>
   <title>CliqueVM</title>
 
@@ -15,7 +16,7 @@
   <style>
   html{ width:100%; height:100%; height: -webkit-fill-available; font-size: 1vw; font-family: Verdana, Geneva, sans-serif; }
   body{ width: 100%; height: 100%; min-height: 100vh; min-height: -webkit-fill-available; margin: 0; padding: 0; background-color: white; color: #505050; line-height:1vw; overflow: hidden; text-align: left; touch-action: manipulation; }
-  h1{ color: slategray; padding: 3px 20px; font-family: "Courier",monospace; font-weight: bold; margin: 10px 0 0 0; vertical-align: middle; font-size: 14px; }
+  h1{ color: slategray; padding: 3px 20px; font-family: "Courier",monospace; font-weight: bold; margin: 2px 0 0 0; vertical-align: middle; font-size: 14px; cursor: pointer; pointer-events: auto; }
 
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -33,14 +34,15 @@
   #resizer:hover{cursor: ew-resize;}
   #panel { flex: 1; display: flex; margin: 0; padding:1vw 0; vertical-align:top; text-align: center; overflow:scroll; display:none; border-top: 1px solid lightgray; border-right: 1px solid lightgray;}
   #text { margin:0; padding: 0; flex: 1; resize: none; font-family: "Courier",monospace; font-size:14px; line-height: 14px; color:#404040; background-color: white; text-align: left; }
+
+  .collapse { display: inline-block; margin-right: 5px; font-size: 16px; color: #a0a0a0; }
   .code { resize: none; min-height: 20px; margin:5px 5px 5px 15px; padding: 0px; border: 1px solid lightgrey; overflow: hidden !important; font-size:13px; opacity: 1; }
   .js { margin:5px 0 5px 15px; padding: 4px; white-space: nowrap; opacity: 0.7; }
   .js-key { color: purple; }
   .js-type { color: steelblue; font-weight: bold; }
   .js-param { font-weight: bold; }
-  .js-test { display: inline-block; line-height: 11px; font-size: 10px; padding: 0 4px; margin-left: 10px; color: white; border-radius: 2px; opacity: 0.7; }
+  .js-test { display: inline-block; line-height: 11px; font-size: 12px; padding: 1px 4px; margin-left: 10px; color: white; border-radius: 2px; opacity: 0.7; }
   .js-debug { color: darkred; font-weight: bold; white-space: wrap;}
-
 
   #toolbar { display: flex; flex-basis: 3vw; vertical-align: bottom; }
   #toolbar-panel { position: relative; width: 5vw; display: none; flex-direction: column; margin: 1vw 0 1.5vw 0; padding: 0; z-index: 3; font-size: 1vw; text-align: middle; line-height: 3vw; cursor: default; pointer-events: none;}
@@ -66,6 +68,8 @@
   input[type="range"]:focus { outline: none; }
   input[type="range"]:focus::-webkit-slider-thumb { border: 1px solid #002040; outline: 2px solid #002040; outline-offset: 1px; }
   input[type="range"]:focus::-moz-range-thumb { border: 1px solid #002040; outline: 2px solid #002040; outline-offset: 1px; }
+
+  input[type="checkbox"] { width: 1.5vw; height: 1.5vw; margin-top: 0.9vw; background: transparent; cursor: pointer; pointer-events: auto; }
 
   .box-left { display: flex; position: absolute; right: 0.9vw; z-index: 5; background: white; border: 1px solid lightgray; padding: 0.5vw; line-height: 1vw; ursor: pointer; pointer-events: auto; }
   .box-bottom { display: flex; flex-direction: column; position: absolute; top: 3.4vw; padding: 1vw 0 0.5vw 0; z-index: 5; background: white; border: 1px solid lightgray; ursor: pointer; pointer-events: auto; }
@@ -130,7 +134,7 @@ import { ModelManager } from './modules/ModelManager.mjs';
 // Global variables
 let mm; // Model Manager
 let vm; // Virtual Machine
-const codenames = ['init','oper','coord','detectors']; // Code segments
+const codenames = ['init','oper','coord','show','detectors']; // Code segments
 let prevcode = null; // Code when focusin
 let scale = 0.5; // Zoom level
 let graphw = 40; // Graph window width in percentage
@@ -371,11 +375,11 @@ document.addEventListener('DOMContentLoaded', function(e) {
       options.observer = 2;
     }
     if ( d3.select('#filter').classed('selected') ) {
-      if ( d3.select('#filter-1').classed('selected') ) {
+      if ( d3.select('#filter-1').property('checked') ) {
         let val = parseInt( d3.select("#filter-1-range").property('value'), 10 );
         options.maxcliquesperloc = val;
       }
-      if ( d3.select('#filter-2').classed('selected') ) {
+      if ( d3.select('#filter-2').property('checked') ) {
         let val = parseInt( d3.select("#filter-2-range").property('value'), 10 );
         options.maxstatesperclique = val;
       }
@@ -561,21 +565,14 @@ document.addEventListener('DOMContentLoaded', function(e) {
     } else {
       d3.select('#filter-box').classed('hidden', true);
     }
-    if ( d3.selectAll('.set-filter.selected').empty() ) {
-      d3.select(this).classed('selected', false );
-    } else {
-      d3.select(this).classed('selected', true );
-    }
   });
 
-  d3.selectAll('.set-filter').on('click', function(e) {
-    let selected = d3.select(this).classed('selected');
-    d3.select(this).classed('selected', !selected);
-    if ( d3.selectAll('.set-filter.selected').empty() ) {
-      d3.select('#filter').classed('selected', false );
-    } else {
-      d3.select('#filter').classed('selected', true );
-    }
+  d3.selectAll('.set-filter').on('change', function(e) {
+    let checked = false;
+    d3.selectAll(".set-filter").each(function(d){
+      checked |= d3.select(this).property('checked');
+    });
+    d3.select('#filter').classed('selected', checked );
   });
 
   d3.selectAll('#filter-1-range').on('input change keyup', function() {
@@ -594,6 +591,17 @@ document.addEventListener('DOMContentLoaded', function(e) {
     let force = parseInt( d3.select("#force-range").property('value'), 10 );
     let friction = parseInt( d3.select("#friction-range").property('value'), 10 );
     vm.force(force,friction);
+  });
+
+  // Title
+  d3.selectAll('.title').on('click', function() {
+    if ( d3.select(this).select('.collapse').html()==='▶' ) {
+      d3.select(this).select('.collapse').html('&#9660;');
+      d3.select(this.nextElementSibling).style('display','block');
+    } else {
+      d3.select(this).select('.collapse').html('&#9654;');
+      d3.select(this.nextElementSibling).style('display','none');
+    }
   });
 
   // Deploy the current model and run it
@@ -691,39 +699,58 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
       <div id="text" spellcheck="false">
 
-        <h1 class="noselect">INITIAL STATE<span id="init-test" class="js-test hidden"></span></h1>
-        <p class="js">
-          <span class="js-key">@return</span> {<span class="js-type">any[]</span>} Array of initial states.
-        </p>
-        <div id="init" class="code"></div>
-        <p id="init-debug" class="js js-debug">
-        </p>
+        <h1 class="title noselect"><span class="collapse">&#9654;</span>INITIAL STATE<span id="init-test" class="js-test hidden"></span></h1>
+        <div style="display:none">
+          <p class="js noselect">
+            <span class="js-key">@return</span> {<span class="js-type">any[]</span>} Array of initial states.
+          </p>
+          <div id="init" class="code"></div>
+          <p id="init-debug" class="js js-debug noselect">
+          </p>
+        </div>
 
-        <h1 class="noselect">OPERATOR<span id="oper-test" class="js-test hidden"></span></h1>
-        <p class="js">
-          <span class="js-key">@param</span> {<span class="js-type">any[]</span>} <span class="js-param">c</span> Clique, array of input states<br>
-          <span class="js-key">@return</span> {<span class="js-type">any[][]</span>} New operations with output states.
-        </p>
-        <div id="oper" class="code"></div>
-        <p id="oper-debug" class="js js-debug">
-        </p>
+        <h1 class="title noselect"><span class="collapse">&#9660;</span>OPERATOR<span id="oper-test" class="js-test hidden"></span></h1>
+        <div>
+          <p class="js noselect">
+            <span class="js-key">@param</span> {<span class="js-type">any[]</span>} <span class="js-param">c</span> Clique, array of input states<br>
+            <span class="js-key">@return</span> {<span class="js-type">any[][]</span>} New operations with output states.
+          </p>
+          <div id="oper" class="code"></div>
+          <p id="oper-debug" class="js js-debug noselect">
+          </p>
+        </div>
 
-        <h1 class="noselect">COORDINATE / EQUIVALENCE<span id="coord-test" class="js-test hidden"></span></h1>
-        <p class="js">
-          <span class="js-key">@param</span> {<span class="js-type">any</span>} <span class="js-param">s</span> State<br>
-          <span class="js-key">@return</span> {<span class="js-type">string</span>} Spatial coordinate.
-        </p>
-        <div id="coord" class="code"></div>
-        <p id="coord-debug" class="js js-debug">
-        </p>
+        <h1 class="title noselect"><span class="collapse">&#9654;</span>COORDINATE / EQUIVALENCE<span id="coord-test" class="js-test hidden"></span></h1>
+        <div style="display:none">
+          <p class="js noselect">
+            <span class="js-key">@param</span> {<span class="js-type">any</span>} <span class="js-param">s</span> State<br>
+            <span class="js-key">@return</span> {<span class="js-type">string</span>} Spatial coordinate.
+          </p>
+          <div id="coord" class="code"></div>
+          <p id="coord-debug" class="js js-debug noselect">
+          </p>
+        </div>
 
-        <h1 class="noselect">DETECTORS<span id="detectors-test" class="js-test hidden"></span></h1>
-        <p class="js">
-          <span class="js-key">@return</span> {<span class="js-type">string[]</span>} Array of detector coordinates.
-        </p>
-        <div id="detectors" class="code"></div>
-        <p id="detectors-debug" class="js js-debug">
-        </p>
+        <h1 class="title noselect"><span class="collapse">&#9654;</span>VISIBILITY<span id="show-test" class="js-test hidden"></span></h1>
+        <div style="display:none">
+          <p class="js">
+            <span class="js-key">@param</span> {<span class="js-type">any</span>} <span class="js-param">s</span> State<br>
+            <span class="js-key">@return</span> {<span class="js-type">boolean</span>} true, if the state is to be shown/visible.
+          </p>
+          <div id="show" class="code"></div>
+          <p id="show-debug" class="js js-debug">
+          </p>
+        </div>
+
+        <h1 class="title noselect"><span class="collapse">&#9654;</span>DETECTORS<span id="detectors-test" class="js-test hidden"></span></h1>
+        <div style="display:none">
+          <p class="js noselect">
+            <span class="js-key">@return</span> {<span class="js-type">string[]</span>} Array of detector coordinates.
+          </p>
+          <div id="detectors" class="code"></div>
+          <p id="detectors-debug" class="js js-debug noselect">
+          </p>
+        </div>
 
       </div>
     </div>
@@ -980,7 +1007,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     <div class="group" style="flex: 1;">
 
       <span class="unit unit-text" style="flex: 2;">
-        <span class="subtitle">Processing</span>
+        <span class="subtitle">Process | Render</span>
         <div id="progress-bar">
           <span>
             <div id="progress-mask"></div>
@@ -1042,7 +1069,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
         </svg>
       </span>
       <span class="unit unit-zero">
-        <span class="subtitle">Prev</span>
+        <span class="subtitle">Previous</span>
       </span>
       <span id="yalp" class="unit unit-action disabled" title="Play in reverse">
         <svg viewBox="2.5 2.2 20.5 20.2" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1103,11 +1130,8 @@ document.addEventListener('DOMContentLoaded', function(e) {
       <span class="unit unit-zero">
         <div id="filter-box" class="box-bottom noselect hidden">
           <div class="group">
-            <span id="filter-1" class="set-filter unit unit-action">
-              <span class="subtitle">On/off</span>
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.5858 13.4142L7.75735 10.5858L6.34314 12L10.5858 16.2427L17.6568 9.1716L16.2426 7.75739L10.5858 13.4142Z" fill="currentColor" />
-              </svg>
+            <span class="unit unit-text">
+              <input id="filter-1" class="set-filter" type="checkbox">
             </span>
             <span class="unit unit-text" style="flex-basis: 9vw;">
               <span id="filter-1-value" class="lcd">6</span>
@@ -1120,11 +1144,8 @@ document.addEventListener('DOMContentLoaded', function(e) {
             </span>
           </div>
           <div class="group">
-            <span id="filter-2" class="set-filter unit unit-action">
-              <span class="subtitle">On/off</span>
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.5858 13.4142L7.75735 10.5858L6.34314 12L10.5858 16.2427L17.6568 9.1716L16.2426 7.75739L10.5858 13.4142Z" fill="currentColor" />
-              </svg>
+            <span class="unit unit-text">
+              <input id="filter-2" class="set-filter" type="checkbox">
             </span>
             <span class="unit unit-text" style="flex-basis: 9vw;">
               <span id="filter-2-value" class="lcd">4</span>
@@ -1172,17 +1193,17 @@ document.addEventListener('DOMContentLoaded', function(e) {
       </svg>
       State
     </div>
-    <div id="legend-location" class="legend hidden">
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polygon fill="transparent" stroke="grey" points="1,1 1,19, 19,19, 19,1" />
-      </svg>
-      Location
-    </div>
     <div id="legend-clique" class="legend hidden">
       <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <polygon fill="#e34a33" stroke="black" points="3,17 3,3 17,3 17,17 3,17" />
       </svg>
       Clique
+    </div>
+    <div id="legend-location" class="legend hidden">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon fill="transparent" stroke="grey" points="1,1 1,19, 19,19, 19,1" />
+      </svg>
+      Location
     </div>
     <div id="legend-density" class="legend hidden">
       <svg viewBox="0 0 100 20" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -213,6 +213,18 @@ as an observer-theoretic coarse-graining and/or encoding function. An example:
 return s.toString();
 ```
 
+The `VISIBILITY` gets a state as its input and returns `true` or `false`
+depending on whether the state is to be shown or not. Note: This doesn't
+affect the processing, only how the states get visualised. An example:
+
+```javascript
+/**
+* @param {any} s State
+* @return {boolean} true, if the state is to be shown.
+**/
+return true;
+```
+
 The `DETECTORS` returns an array of coordinates to be monitored. Whenever some
 detector state is visited at some step, its counter is increased. An example:
 
@@ -252,8 +264,7 @@ FUNCTION| DESCRIPTION
 <nobr>`BronKerbosch(V,N)`</nobr> | Finds maximal cliques of the set `V` using the Bron-Kerbosch algorithm. `N` is a WeakMap of neighbours for each vertex.
 <nobr>`rewriteStr(s,rules)`</nobr> | Rewrite string `s` with `rules`. Return all overlapping maximal results. For example:<br/> `rewriteStr('BAA',[['BA','AB'],['A','C']])` -> `['BCC', 'ABC']`.
 
-**TODO:** Add utility functions for typical use cases such as graph and
-string rewriting.
+**TODO:** Add utility functions for typical use cases such as graph rewriting.
 
 
 ## Gallery
@@ -282,6 +293,7 @@ Copy the JSON string below and import it to the app:
   "init":"let v = this.id();\nreturn [[v,v],[v,v]];",
   "oper":"let s = this.clone(c);\nthis.shuffle(s);\nif(s.length>=2){\n  let v1=s[0][0],v2=s[0][1],v3=s[1][1],v4=this.id();\n  s.splice(0,2,[v1,v2],[v1,v4],[v2,v4],[v3,v4]);\n}\nreturn [s];",
   "coord":"return s[0].toString();",
+  "show":"return true;",
   "detectors":"return [];"
 }
 ```
@@ -296,6 +308,7 @@ Copy the JSON string below and import it to the app:
   "init":"return [{x:0,y:0,z:0},{x:0,y:0,z:0}];",
   "oper":"let s=[],t=[];\nfor( let p of c ) {\n  let [a,b]=this.clone([p,p]);\n  let i=this.shuffle(['x','y','z'])[0];\n  if (a[i]<3) a[i]++;\n  if (b[i]>-3) b[i]--;\n  s.push(a);\n  t.push(b);\n}\nreturn [s,t];",
   "coord":"return s.x+','+s.y+','+s.z;",
+  "show":"return true;",
   "detectors":"return Array.from({length:7},(_,i)=>i-3+',0,0');"
 }
 ```

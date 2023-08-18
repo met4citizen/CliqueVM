@@ -54,8 +54,8 @@ class ForceGraph {
 			.warmupTicks(5)
 			.cooldownTime( 5000 )
 			.linkDirectionalArrowLength(0)
-			.nodeVisibility( true )
-			.linkVisibility( true )
+			.nodeVisibility( n => !n.hide )
+			.linkVisibility( l => !l.source.hide && !l.target.hide )
 			.nodeOpacity( 0.9 )
 			.linkOpacity( 0.8 )
 			.nodeRelSize( 8 )
@@ -195,6 +195,7 @@ class ForceGraph {
 
 		for( let i=0; i<d.coords.length; i++) {
 			let loc = d.ids[3]+i+1;
+			let hide = d.hide.includes(loc);
 			let coord = d.coords[i];
 			let metric = d.metric[i];
 			let stats = d.stats[i]; // Number of operations, states, cliques to loc
@@ -215,12 +216,14 @@ class ForceGraph {
 			if ( node ) {
 				node.stepcnt += n;
 				node.cnt += n;
+				node.hide = node.hide && hide;
 			} else {
 				node = {
 					id: coord,
 					stepcnt: n,
 					color: this.dataStyleNodeColor,
-					cnt: n
+					cnt: n,
+					hide: hide
 				};
 				this.dataN.set( coord, node );
 				this.data.nodes.push( node );
@@ -317,8 +320,10 @@ class ForceGraph {
 			let stats = d.stats[i]; // Number of operations, states, cliques to loc
 			let n = stats[0] || 1; // Count operations
 			let node = this.dataN.get( coord );
-			node.stepcnt += n;
-			if ( node.stepcnt > this.maxStepCnt ) this.maxStepCnt = node.stepcnt;
+			if ( node ) {
+				node.stepcnt += n;
+				if ( node.stepcnt > this.maxStepCnt ) this.maxStepCnt = node.stepcnt;
+			}
 		}
 
 		// Update colors
