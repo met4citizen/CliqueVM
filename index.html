@@ -71,10 +71,12 @@
 
   input[type="checkbox"] { width: 1.5vw; height: 1.5vw; margin-top: 0.9vw; background: transparent; cursor: pointer; pointer-events: auto; }
 
-  .box-left { display: flex; position: absolute; right: 0.9vw; z-index: 5; background: white; border: 1px solid lightgray; padding: 0.5vw; line-height: 1vw; ursor: pointer; pointer-events: auto; }
-  .box-bottom { display: flex; flex-direction: column; position: absolute; top: 3.4vw; padding: 1vw 0 0.5vw 0; z-index: 5; background: white; border: 1px solid lightgray; ursor: pointer; pointer-events: auto; }
+  .box-left { display: flex; position: absolute; right: 0.9vw; z-index: 5; background: white; border: 1px solid lightgray; padding: 0.5vw; line-height: 1vw; cursor: pointer; pointer-events: auto; }
+  .box-bottom { display: flex; flex-direction: column; position: absolute; top: 3.4vw; padding: 1vw 0 0.5vw 0; z-index: 5; background: white; border: 1px solid lightgray; cursor: pointer; pointer-events: auto; }
   #observer-box { width: 4.8vw; margin-left: -1vw; }
   #filter-box { width: 16vw; margin-left: -1vw; right: -4.3vw; }
+  #server-box { width: 24vw; margin-left: -1vw; right: -4.3vw; }
+  #server-url { width: 20vw; pointer-events: auto; }
   #export-box { top: -1.5vw; width: 25vw; height: 3.5vw; }
   #import-box { top: -1.5vw; width: 25vw; height: 3.5vw; }
   #export-json, #import-json {
@@ -252,6 +254,13 @@ function setLegend(legend=null) {
 // Initialize the app
 async function init() {
 
+  // Load server
+  const serverEnable = localStorage.getItem('serverEnable') || false;
+  d3.select('#server-enable').property('checked', serverEnable );
+  d3.select('#server').classed('selected', serverEnable );
+  const serverUrl = localStorage.getItem('serverUrl') || '';
+  d3.select('#server-url').property('value', serverUrl );
+
   // Check URL parameter 'model'
   // If set, import it to the model manager, otherwise use local storage.
   let modelurl = getUrlParameter('model');
@@ -270,7 +279,8 @@ async function init() {
 
   // Setup the model
   let model = mm.get();
-  vm.reset(model);
+  let server = serverEnable ? serverUrl : null;
+  vm.reset(model, server );
   d3.select('#trace').dispatch('click');
 
   // Check URL parameter 'view'
@@ -357,7 +367,8 @@ document.addEventListener('DOMContentLoaded', function(e) {
   // Reset
   d3.select('#reset').on('click', function(e) {
     d3.selectAll('#play,#yalp').classed('selected',false);
-    vm.reset();
+    const server = d3.select("#server-enable").property("checked") ? d3.select("#server-url").property("value") : null;
+    vm.reset( null, server );
   });
 
   // Cancel
@@ -585,6 +596,29 @@ document.addEventListener('DOMContentLoaded', function(e) {
     d3.select('#filter-2-value').text(val);
   });
 
+  // Server
+  d3.select('#server').on('click', function(e) {
+    if ( d3.select('#server-box').classed('hidden') ) {
+      d3.selectAll('.box-bottom').classed('hidden',true);
+      d3.select('#server-box').classed('hidden', false);
+    } else {
+      d3.select('#server-box').classed('hidden', true);
+    }
+  });
+
+  d3.select('#server-enable').on('change',function(e) {
+    const serverEnable = d3.select('#server-enable').property('checked');
+    d3.select('#server').classed('selected', serverEnable );
+    localStorage.setItem('serverEnable', serverEnable );
+    d3.selectAll('#play,#yalp').classed('selected',false);
+    const server = serverEnable ? d3.select("#server-url").property("value") : null;
+    vm.reset( null, server );
+  });
+
+  d3.select('#server-url').on('change keyup paste input',function(e) {
+    localStorage.setItem('serverUrl', d3.select('#server-url').property('value') );
+  });
+
 
   // Changed force
   d3.selectAll('#force-range,#friction-range').on('input change keyup', function() {
@@ -610,8 +644,9 @@ document.addEventListener('DOMContentLoaded', function(e) {
     d3.selectAll(".js-test").classed('hidden',true);
     d3.selectAll(".js-debug").text('');
     d3.select(this).classed('highlight',false);
-    let model = mm.get();
-    vm.reset(model);
+    const model = mm.get();
+    const server = d3.select("#server-enable").property("checked") ? d3.select("#server-url").property("value") : null;
+    vm.reset(model,server);
   });
 
   // Test/debug
@@ -712,8 +747,8 @@ document.addEventListener('DOMContentLoaded', function(e) {
         <h1 class="title noselect"><span class="collapse">&#9660;</span>OPERATOR<span id="oper-test" class="js-test hidden"></span></h1>
         <div>
           <p class="js noselect">
-            <span class="js-key">@param</span> {<span class="js-type">any[]</span>} <span class="js-param">c</span> Clique, array of input states<br>
-            <span class="js-key">@return</span> {<span class="js-type">any[][]</span>} New operations with output states.
+            <span class="js-key">@param</span> {<span class="js-type">any[]</span>} <span class="js-param">c</span> Clique; array of input states<br>
+            <span class="js-key">@return</span> {<span class="js-type">any[][]</span>} Operations; arrays with output states.
           </p>
           <div id="oper" class="code"></div>
           <p id="oper-debug" class="js js-debug noselect">
@@ -1039,6 +1074,31 @@ document.addEventListener('DOMContentLoaded', function(e) {
       <span class="unit unit-text" style="flex: 1;">
         <span class="subtitle">Dataset</span>
         <span id="size" class="lcd"></span>
+      </span>
+
+      <span class="unit unit-zero">
+        <div id="server-box" class="box-bottom noselect hidden">
+          <div class="group">
+            <span class="unit unit-text">
+              <input id="server-enable" class="set-server" type="checkbox">
+            </span>
+            <span class="unit unit-zero">
+              <span class="subtitle" style="margin-left: 4.2vw;">Compute on external server:</span>
+            </span>
+            <span class="unit unit-text">
+              <input id="server-url" class="set-server" type="text" style="width: 19vw;">
+            </span>
+          </div>
+        </div>
+      </span>
+      <span id="server" class="unit unit-action" title="Server">
+        <span class="subtitle">Server</span>
+        <svg viewBox="-4 -4 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 6C8.44772 6 8 6.44772 8 7C8 7.55228 8.44772 8 9 8H15C15.5523 8 16 7.55228 16 7C16 6.44772 15.5523 6 15 6H9Z" fill="currentColor" />
+          <path d="M9 10C8.44772 10 8 10.4477 8 11C8 11.5523 8.44772 12 9 12H15C15.5523 12 16 11.5523 16 11C16 10.4477 15.5523 10 15 10H9Z" fill="currentColor" />
+          <path d="M13 17C13 17.5523 12.5523 18 12 18C11.4477 18 11 17.5523 11 17C11 16.4477 11.4477 16 12 16C12.5523 16 13 16.4477 13 17Z" fill="currentColor" />
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M4 5C4 3.34315 5.34315 2 7 2H17C18.6569 2 20 3.34315 20 5V19C20 20.6569 18.6569 22 17 22H7C5.34315 22 4 20.6569 4 19V5ZM7 4H17C17.5523 4 18 4.44772 18 5V19C18 19.5523 17.5523 20 17 20H7C6.44772 20 6 19.5523 6 19V5C6 4.44772 6.44771 4 7 4Z" fill="currentColor" />
+        </svg>
       </span>
 
     </div>

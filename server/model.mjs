@@ -1,7 +1,9 @@
-importScripts("ModelAPI.js");
+import { parentPort, workerData } from "node:worker_threads";
+import { ModelAPI } from './api.mjs';
 
 // Globals
 const model = new ModelAPI(); // Model
+const ctrlAbort = new Int32Array(workerData.abort);
 
 const V = new Map(); // Vertices, key: id, value: vertex
 let id = 0; // Vertex id, current maximum id
@@ -13,13 +15,12 @@ let Ls = []; // Latest states
 let Lc = []; // Latest maximal cliques
 let Ll = []; // Latest spacetime locations
 
-const interval = 500; // Progress report interval in milliseconds
+const interval = 1000; // Progress report interval in milliseconds
 let timestamp = 0; // Timestamp of the last progress report
 const fmem = [BigInt(0), BigInt(1)]; // Factorial memoization
 
 // Event handler
-self.onmessage = (msg) => {
-  let d = msg.data;
+parentPort.on("message", function Message(d) {
   if ( !d.action ) throw new TypeError('No action specified.');
   if ( d.action === 'setup' ) {
     if ( postProgress(d,0,true) ) {
@@ -36,29 +37,23 @@ self.onmessage = (msg) => {
   } else {
     throw new TypeError('Unknown action.');
   }
-}
+});
 
-function isAborted(d) {
-  let xhr = new XMLHttpRequest();
-  xhr.open("GET", d.job, /* async= */false);
-  xhr.timeout = 500;
-  try {
-    xhr.send(null);
-    if (xhr.status !== 200) {
-      return true;
-    }
-  } catch (e) {
-    return true; // The job is no longer valid
-  }
-  return false;
+function isAborted() {
+  const value = Atomics.load(ctrlAbort,0);
+  Atomics.store(ctrlAbort, 0, 0);
+  Atomics.notify(ctrlAbort, 0);
+  return (value !== 0);
 }
 
 // Post progress report
 // Return false, if the job is no longer valid
 function postProgress(d,p,force=false) {
   if ( force || ((Date.now() - timestamp) > interval) ) {
+
     // Check if the job was aborted
-    if ( d.job && p>0 && p<1 && isAborted(d) ) return false;
+    const aborted = isAborted();
+    if ( d.job && p>0 && p<1 && aborted ) return false;
 
     // Progress message
     let msg = {
@@ -68,7 +63,7 @@ function postProgress(d,p,force=false) {
       progress: p
     };
     timestamp = Date.now();
-    postMessage(msg);
+    parentPort.postMessage(msg);
   }
   return true;
 }
@@ -124,7 +119,7 @@ function postReady(d,props={}) {
   });
 
   // Post
-  postMessage(msg);
+  parentPort.postMessage(msg);
 
 }
 

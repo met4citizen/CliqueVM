@@ -36,12 +36,13 @@ class CliqueVM {
 	/**
 	* Reset initial state.
 	* @param {Object} [model=null] Model.
+	* @param {Object} [server=null] Web socket server URL.
 	*/
-	reset(model=null) {
+	reset(model=null,server=null) {
 		// The model
 		this.model = model || this.model;
 		if ( !this.model ) throw new InternalError('Model not yet deployed.');
-
+		
 		// Reset force graph
 		this.fg.reset();
 
@@ -49,6 +50,9 @@ class CliqueVM {
 		this.abort(true,true);
 		if ( this.wwview ) this.wwview.terminate();
 		if ( this.wwmodel ) this.wwmodel.terminate();
+
+		// New server
+		this.server = server;
 
 		// Start View worker
 		this.wwview = new Worker('./lib/wwview.js');
@@ -81,7 +85,11 @@ class CliqueVM {
 		}
 
 		// Start Model worker
-		this.wwmodel = new Worker('./lib/wwmodel.js');
+		if ( this.server ) {
+			this.wwmodel = new Worker('./lib/wwproxy.js');
+		} else {
+			this.wwmodel = new Worker('./lib/wwmodel.js');
+		}
 		this.wwmodel.onmessage = (msg) => {
 			const d = msg.data;
 			if ( d.status === 'in-progress' ) {
@@ -137,6 +145,7 @@ class CliqueVM {
 			action: 'setup',
 			model: this.model
 		};
+		if ( server ) msg["server"] = server;
 		this.wwmodel.postMessage( msg );
 	}
 
@@ -182,8 +191,13 @@ class CliqueVM {
 		// Abort/cancel model jobs
 		if ( model ) {
 			isJobs = isJobs || this.wwmodeljobs.length;
-			this.wwmodeljobs.forEach( job => URL.revokeObjectURL(job) );
+			this.wwmodeljobs.forEach( job => {
+				URL.revokeObjectURL(job)
+			});
 		  this.wwmodeljobs.length = 0;
+			if ( this.wwmodel && this.server ) {
+				this.wwmodel.postMessage( { action: "abort" } );
+			}
 		}
 
 		// Notify if we aborted/cancelled jobs

@@ -267,6 +267,46 @@ FUNCTION| DESCRIPTION
 **TODO:** Add utility functions for typical use cases such as graph rewriting.
 
 
+## Server (EXPERIMENTAL)
+
+By default, the model is computed on the your browser using Web Worker threads.
+However, it is also possible to compute the model on an external WebSocket
+server.
+
+In order to run the server, install
+[Node.js](https://nodejs.org/en/download), clone the project, install the server, and run it:
+
+```
+git clone https://github.com/met4citizen/CliqueVM.git
+cd CliqueVM/server
+npm install
+node server.mjs --cert=/path/server.crt --key=/path/server.key --port=8888
+```
+
+PARAMETER | DESCRIPTION
+:-- | :--
+`cert` | SSL certificate file. If not specified, SSL is not used.
+`key` | SSL certificate key file. If not specified, SSL is not used.
+`port` | Server port. Default port is `8888`.
+`threads` | Number of threads used for computing the model. Default is the number of CPU cores. **(TO BE IMPLEMENTED)**
+
+Once the server is running, open CliqueVM page, click `Server` on toolbar,
+specify your server URL, and click the check box next to it to enable.
+
+Some notes:
+
+- If you run the server over SSL, use protocol `wss` on the URL, e.g. `wss://<domain.com>:8888/`.
+- If you run the server without SSL, use protocol `ws` on the URL, e.g. `ws://<domain.com>:8888/`.
+- If you run CliqueVM over HTTPS, but the server without SSL, you need to allow insecure content from your browser's settings (not recommended).
+- If you use a self-signed certificate on your server, you might need to first open the HTTPS page, e.g. "https://<domain.com>:8888/", on your browser to accept the certificate.
+
+**NOTE:** Currently the server-side implementation is more or less
+identical to the client-side implementation. This means that you will probably
+not get any improvement by doing the computation on the server.
+However, the future plan is the rewrite the server and distribute its
+computations on multiple threads.
+
+
 ## Gallery
 
 #### String rewriting BA->AB
@@ -279,6 +319,7 @@ Copy the JSON string below and import it to the app:
   "init":"return [\"ABBABAA\"];",
   "oper":"let a=/BA/gi,b=\"AB\",r,o=[];\nwhile( r=a.exec(c[0]) ) {\n  let s = c[0].split(\"\");\n  s.splice(r.index,b.length,b);\n  o.push( [s.join(\"\")] );\n};\nreturn o;",
   "coord":"return s;",
+  "show":"return true;",
   "detectors":"return [];"
 }
 ```
