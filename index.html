@@ -162,15 +162,27 @@ function vmEventHandler(type,x=null) {
         .style('width', (100-x)+'%');
       break;
 
+    case 'step-ready': // Notify step processing progress [0-100]
+      d3.select("#progress-mask")
+        .classed('smooth', true )
+        .style('width', '0');
+      break;
+
     case 'view-progress': // Notify view processing progress [0-100]
       d3.select("#progress-ui").classed('blink', x!==100 );
-      if ( x===0 ) {
-      } else if ( x===100 && vm.wwviewjobs.length === 0 ) {
-        if ( d3.select('#play').classed('selected') ) {
-          setTimeout( function() { d3.select('#next').dispatch('click'); }, 500 );
-        } else if ( d3.select('#yalp').classed('selected') ) {
-          setTimeout( function() { d3.select('#prev').dispatch('click'); }, 500 );
-        }
+      zoom();
+      break;
+
+    case 'view-ready': // Notify view processing progress [0-100]
+      d3.select("#progress-ui").classed('blink', false );
+      if ( d3.select('#play').classed('selected') ) {
+        setTimeout( function() {
+          if ( !d3.select('#play').classed('disabled') ) d3.select('#next').dispatch('click');
+        }, 500 );
+      } else if ( d3.select('#yalp').classed('selected') ) {
+        setTimeout( function() {
+          if ( !d3.select('#yalp').classed('disabled') ) d3.select('#prev').dispatch('click');
+        }, 500 );
       }
       zoom();
       break;
@@ -255,8 +267,8 @@ function setLegend(legend=null) {
 async function init() {
 
   // Load server
-  const serverEnable = localStorage.getItem('serverEnable') || false;
-  d3.select('#server-enable').property('checked', serverEnable );
+  const serverEnable = JSON.parse(localStorage.getItem('serverEnable')) || false;
+  d3.select('#server-enable').property( 'checked', serverEnable || null );
   d3.select('#server').classed('selected', serverEnable );
   const serverUrl = localStorage.getItem('serverUrl') || '';
   d3.select('#server-url').property('value', serverUrl );
@@ -400,7 +412,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
   // Play
   d3.select('#play').on('click', function(e) {
-    vm.abort();
     if ( d3.select(this).classed('selected') ) {
       d3.select(this).classed('selected', false);
     } else {
@@ -412,7 +423,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
   // Play in reverse
   d3.select('#yalp').on('click', function(e) {
-    vm.abort();
     if ( d3.select(this).classed('selected') ) {
       d3.select(this).classed('selected', false);
     } else {
@@ -607,9 +617,9 @@ document.addEventListener('DOMContentLoaded', function(e) {
   });
 
   d3.select('#server-enable').on('change',function(e) {
-    const serverEnable = d3.select('#server-enable').property('checked');
+    const serverEnable = e.currentTarget.checked;
     d3.select('#server').classed('selected', serverEnable );
-    localStorage.setItem('serverEnable', serverEnable );
+    localStorage.setItem('serverEnable', JSON.stringify(serverEnable) );
     d3.selectAll('#play,#yalp').classed('selected',false);
     const server = serverEnable ? d3.select("#server-url").property("value") : null;
     vm.reset( null, server );
@@ -1080,13 +1090,13 @@ document.addEventListener('DOMContentLoaded', function(e) {
         <div id="server-box" class="box-bottom noselect hidden">
           <div class="group">
             <span class="unit unit-text">
-              <input id="server-enable" class="set-server" type="checkbox">
+              <input id="server-enable" type="checkbox">
             </span>
             <span class="unit unit-zero">
               <span class="subtitle" style="margin-left: 4.2vw;">Compute on external server:</span>
             </span>
             <span class="unit unit-text">
-              <input id="server-url" class="set-server" type="text" style="width: 19vw;">
+              <input id="server-url" type="text" style="width: 19vw;">
             </span>
           </div>
         </div>

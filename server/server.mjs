@@ -12,6 +12,10 @@ function args(key) {
   return value ? value.substring(key.length+3) : null;
 }
 const threads = parseInt(args("threads")) || cpus().length;
+if ( threads < 1 || threads > cpus().length ) {
+  console.error("Thread count should be between 1 and the number of CPU cores (" + cpus().length + ").");
+  process.exit(1);
+}
 const port = parseInt(args("port")) || 8888;
 const cert = args("cert") || null;
 const key = args("key") || null;
@@ -19,10 +23,9 @@ const isSSL = (cert && key);
 
 
 // Start HTTPS/WebSocket servers
-let server;
 let wss;
 if ( isSSL ) {
-  server = createServer({
+  let server = createServer({
     cert: readFileSync(cert, 'utf8'),
     key: readFileSync(key, 'utf8')
   });
@@ -79,17 +82,12 @@ wss.on('connection', (ws,req) => {
     ws.close();
   });
   ws.on('close', (e) => {
-    worker.terminate();
+    worker.postMessage({ action: 'close' });
   });
   ws.on('pong', (e) => {
     ws.isAlive = true;
   });
 
-});
-
-// Close server
-wss.on('close', () => {
-  clearInterval(heartbeat);
 });
 
 // Heartbeat
@@ -100,3 +98,8 @@ const heartbeat = setInterval(function ping() {
     ws.ping();
   });
 }, 30000);
+
+// Close server
+wss.on('close', () => {
+  clearInterval(heartbeat);
+});

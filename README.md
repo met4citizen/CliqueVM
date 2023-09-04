@@ -288,23 +288,17 @@ PARAMETER | DESCRIPTION
 `cert` | SSL certificate file. If not specified, SSL is not used.
 `key` | SSL certificate key file. If not specified, SSL is not used.
 `port` | Server port. Default port is `8888`.
-`threads` | Number of threads used for computing the model. Default is the number of CPU cores. **(TO BE IMPLEMENTED)**
+`threads` | Number of threads used for computing the model from 1 to the number of CPU cores. Default is the number of CPU cores.
 
 Once the server is running, open CliqueVM page, click `Server` on toolbar,
 specify your server URL, and click the check box next to it to enable.
 
-Some notes:
+Notes:
 
 - If you run the server over SSL, use protocol `wss` on the URL, e.g. `wss://<domain.com>:8888/`.
 - If you run the server without SSL, use protocol `ws` on the URL, e.g. `ws://<domain.com>:8888/`.
 - If you run CliqueVM over HTTPS, but the server without SSL, you need to allow insecure content from your browser's settings (not recommended).
 - If you use a self-signed certificate on your server, you might need to first open the HTTPS page, e.g. "https://<domain.com>:8888/", on your browser to accept the certificate.
-
-**NOTE:** Currently the server-side implementation is more or less
-identical to the client-side implementation. This means that you will probably
-not get any improvement by doing the computation on the server.
-However, the future plan is the rewrite the server and distribute its
-computations on multiple threads.
 
 
 ## Gallery

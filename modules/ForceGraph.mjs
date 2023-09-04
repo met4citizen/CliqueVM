@@ -120,7 +120,7 @@ class ForceGraph {
 			}
 			this.g.graphData( this.data );
 			this.resumeTimeout();
-			this.fn( 'view-progress', 100 );
+			this.fn( 'view-ready' );
 		} else if ( this.view === 'hits' ) {
 			this.hits( this.optionsView );
 		}
@@ -407,7 +407,7 @@ class ForceGraph {
 	  // SVG ready
 		this.d3dot.node().innerHTML = '';
 		this.d3dot.append(() => svg.node());
-		this.fn( 'view-progress', 100 );
+		this.fn( 'view-ready' );
 
 	}
 

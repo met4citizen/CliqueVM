@@ -1,5 +1,38 @@
-import { parentPort, workerData } from "node:worker_threads";
+import { Worker, parentPort, workerData } from "node:worker_threads";
 import { ModelAPI } from './api.mjs';
+
+// Start Clique workers
+const threads = [];
+let jobs = [];
+let resolvers = [];
+let rejectors = [];
+let task = 0;
+let job = 0;
+for( let i=0; i<workerData.threads; i++ ) {
+  threads[i] = new Worker('./clique.mjs');
+  threads[i].on("message", (d) => {
+    if ( d.task === task ) {
+      if ( postProgress( { action: "clique", job: d.job }, (1 + job / jobs.length ) / 2 ) ) {
+        resolvers[ d.job ]( d.cliques.map( x => x.map( y => V.get(y) ) ) );
+        job++;
+        if ( job < jobs.length ) {
+          threads[i].postMessage( {
+            action: 'clique',
+            task: task,
+            job: job,
+            states: jobs[job].map( x => x.id )
+          });
+        }
+      } else {
+        rejectors[ d.job ]();
+        task++;
+      }
+    }
+  });
+  threads[i].on("error", (e) => {
+    console.error(e);
+  });
+}
 
 // Globals
 const model = new ModelAPI(); // Model
@@ -20,7 +53,7 @@ let timestamp = 0; // Timestamp of the last progress report
 const fmem = [BigInt(0), BigInt(1)]; // Factorial memoization
 
 // Event handler
-parentPort.on("message", function Message(d) {
+parentPort.on("message", (d) => {
   if ( !d.action ) throw new TypeError('No action specified.');
   if ( d.action === 'setup' ) {
     if ( postProgress(d,0,true) ) {
@@ -34,6 +67,9 @@ parentPort.on("message", function Message(d) {
     if ( postProgress(d,0,true) ) {
       if ( prev(d) ) postProgress(d,1,true);
     }
+  } else if ( d.action === 'close' ) {
+    threads.forEach( x => x.terminate() );
+    process.exit(0);
   } else {
     throw new TypeError('Unknown action.');
   }
@@ -51,10 +87,6 @@ function isAborted() {
 function postProgress(d,p,force=false) {
   if ( force || ((Date.now() - timestamp) > interval) ) {
 
-    // Check if the job was aborted
-    const aborted = isAborted();
-    if ( d.job && p>0 && p<1 && aborted ) return false;
-
     // Progress message
     let msg = {
       status: 'in-progress',
@@ -64,6 +96,11 @@ function postProgress(d,p,force=false) {
     };
     timestamp = Date.now();
     parentPort.postMessage(msg);
+
+    // Check if the job was aborted
+    const aborted = isAborted();
+    if ( d.job && p>=0 && p<1 && aborted ) return false;
+
   }
   return true;
 }
@@ -123,8 +160,37 @@ function postReady(d,props={}) {
 
 }
 
+function addLayer( start, end, clique=false ) {
+  const links = [];
+  for( let i=start; i<=end; i++ ) {
+    V.get(i).parent.forEach( x => links.push( [i,x.id] ) );
+  }
 
-function findCliques(d) {
+  // Update threads
+  threads.forEach( x => {
+    x.postMessage( {
+      action: 'add',
+      start: start,
+      end: end,
+      links: links,
+      clique: clique
+    });
+  });
+}
+
+function delLayer(start,end) {
+  // Update threads
+  threads.forEach( x => {
+    x.postMessage( {
+      action: 'del',
+      start: start,
+      end: end
+    });
+  });
+}
+
+
+async function findCliques(d) {
 
   // Set new ids structure
   const ids = [id];
@@ -154,15 +220,45 @@ function findCliques(d) {
     }
   });
   ids.push(id);
+  addLayer(ids[0]+1,ids[2]);
 
-  // Find maximal cliques for each coordinate location
+  // Find maximal cliques using the thread pool
+  jobs = [...G.values()];
+  task++;
+  resolvers = new Array(jobs.length);
+  rejectors = new Array(jobs.length);
+  const promises = Array.from({ length: jobs.length }, (_,i) => {
+    return new Promise((resolve,reject) => {
+        resolvers[i] = resolve;
+        rejectors[i] = reject;
+      });
+  });
+  job = Math.min( jobs.length-1, threads.length-1 );
+  for( let i=job; i>=0; i-- ) {
+    threads[i].postMessage( {
+      action: 'clique',
+      task: task,
+      job: i,
+      states: jobs[i].map( x => x.id )
+    });
+  }
+
+  // Wait for threads to finish
+  let cliques;
+  try {
+    cliques = await Promise.all( promises );
+  } catch(ex) {
+    delLayer(ids[0]+1,ids[2]);
+    return false;
+  }
+
   Lc.length = 0;
   Ll.length = 0;
   let i = 0;
   for( let [coord,states] of G ) {
-    const MC = BronKerbosch(states);
+
     const loc = { coord: coord, parent: [] };
-    MC.forEach( c => {
+    cliques[i].forEach( c => {
       const clique = { id: ++id, loc: loc, parent: [...c] };
       clique.show = clique.parent.some( x => x.show );
       V.set(id,clique);
@@ -181,11 +277,10 @@ function findCliques(d) {
     loc.metric = [...new Set( p.map( x => x.loc.id ) ) ]; // Parent spacetime locations
     Ll.push( loc );
 
-    // Progress report
     i++;
-    if ( !postProgress( d, (1 + (i / G.size) ) / 2 ) ) return false;
   }
   ids.push(id);
+  addLayer(ids[2]+1,ids[3],true);
 
   // Label spacetime locations
   Ll.forEach( l => {
@@ -202,7 +297,7 @@ function findCliques(d) {
 }
 
 // Setup the model based on function in parameter d.model
-function setup(d) {
+async function setup(d) {
 
   // Create a new model
   if ( !d.model ) {
@@ -250,7 +345,7 @@ function setup(d) {
   is.forEach( s => Ls.push( { state: s, parent: [op] } ) );
 
   // Set ids and find cliques
-  findCliques(d);
+  await findCliques(d);
 
   // Detectors
   let detectors = model.detectors();
@@ -295,7 +390,7 @@ function filter(d) {
       Lc.push( Ll[i].parent[ndx] );
 
       // Progress report
-      if ( !postProgress( d, (i+1) / Ll.length / 4 ) ) return false;
+      if ( !postProgress( d, i / Ll.length / 4 ) ) return false;
 
     }
 
@@ -339,7 +434,7 @@ function filter(d) {
       Lc.push( ...Ll[i].parent );
 
       // Progress report
-      if ( !postProgress( d, (i+1) / Ll.length / 4 ) ) return false;
+      if ( !postProgress( d, i / Ll.length / 4 ) ) return false;
     }
 
   }
@@ -348,7 +443,7 @@ function filter(d) {
 }
 
 // Calculate the next generation
-function next(d) {
+async function next(d) {
 
   // Options
   let maxstatesperclique = d.maxstatesperclique || model._opt.maxstatesperclique || 0;
@@ -399,7 +494,7 @@ function next(d) {
     });
 
     // Progress report
-    if ( !postProgress( d, ( 1 + (i+1) / Lc.length ) / 4 ) ) {
+    if ( !postProgress( d, ( 1 + i / Lc.length ) / 4 ) ) {
       reconstruct(); // Aborted, reconstruct current step
       return false;
     };
@@ -407,7 +502,7 @@ function next(d) {
   });
 
   // Find maximal cliques for each group
-  if ( !findCliques(d) ) {
+  if ( !(await findCliques(d)) ) {
     reconstruct(); // Aborted, reconstruct current step
     return false;
   };
@@ -466,7 +561,10 @@ function prev(d) {
   }
 
   // Delete current step
-  IDS.pop();
+  const ids = IDS.pop();
+
+  // Update threads
+  delLayer(ids[0]+1,ids[3]);
 
   // Reconstruct current data model
   reconstruct();
@@ -527,57 +625,4 @@ function isSpacelike( v1, v2 ) {
 
   // Spacelike
   return true;
-}
-
-// Bron-Kerbosch algorithm with pivoting for finding maximal cliques
-// for the given local group.
-//
-// ALGORITHM BK(R, P, X) IS
-//    IF P and X are both empty THEN
-//        report R as a maximal clique
-//    choose a pivot vertex u in P ⋃ X
-//    FOR each vertex v in P \ N(u) DO
-//        BK(R ⋃ {v}, P ⋂ N(v), X ⋂ N(v))
-//        P := P \ {v}
-//        X := X ⋃ {v}
-//
-function BronKerbosch(U) {
-  const r = []; // The set of maximal cliques
-  const N = new WeakMap(); // Neighbours
-
-  U.forEach( u => N.set(u,[]) );
-  for( let i=0; i<U.length-1; i++ ) {
-    for( let j=i+1; j<U.length; j++ ) {
-      if ( isSpacelike( U[i],U[j] ) ) {
-        N.get(U[i]).push(U[j]);
-        N.get(U[j]).push(U[i]);
-      }
-    }
-  }
-  U.sort( (a,b) => N.get(b).length - N.get(a).length ); // Higher deg first
-
-  const stack = [];
-  stack.push([[],[...U],[]]);
-  while( stack.length ) {
-    let [R,P,X] = stack.pop();
-
-    if ( !P.length && !X.length ) r.push(R); // Report R as a maximal clique
-
-    let u = [ ...P, ...X][0]; // Choose a pivot vertex
-    let nu = N.get(u);
-    let pdiffnu = P.filter( x => !nu.includes(x) );
-
-    while( pdiffnu.length ) {
-      let v = pdiffnu.splice(0,1)[0];
-      let nv = N.get(v);
-      stack.push([
-        [...new Set([...R,v])],
-        P.filter( x => nv.includes(x) ),
-        X.filter( x => nv.includes(x) )
-      ]);
-      P.splice( P.indexOf(v) ,1);
-      X = [ ...new Set([ ...X,v ]) ];
-    }
-  }
-  return r;
 }

@@ -42,7 +42,7 @@ class CliqueVM {
 		// The model
 		this.model = model || this.model;
 		if ( !this.model ) throw new InternalError('Model not yet deployed.');
-		
+
 		// Reset force graph
 		this.fg.reset();
 
@@ -75,6 +75,7 @@ class CliqueVM {
 						this.processDot( d.data.dot );
 					}
 				}
+
 			}
 		}
 
@@ -130,6 +131,8 @@ class CliqueVM {
 				} else {
 					this.fg.nextData(d.data);
 				}
+
+				this.fn('step-ready');
 
 			}
 		}
@@ -276,7 +279,7 @@ class CliqueVM {
 	    this.wwdot.onmessage = (msg) => {
 	      this.wwdotjobcnt--;
 				this.edot.innerHTML = msg.data;
-				this.fn('view-progress', 100);
+				this.fn('view-ready');
 				if ( this.view === 'trace' ) {
 					this.edot.scrollTop = this.edot.scrollHeight;
 				}
