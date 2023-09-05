@@ -16,7 +16,7 @@ if ( threads < 1 || threads > cpus().length ) {
   console.error("Thread count should be between 1 and the number of CPU cores (" + cpus().length + ").");
   process.exit(1);
 }
-const port = parseInt(args("port")) || 8888;
+const port = parseInt(args("port")) || 8880;
 const cert = args("cert") || null;
 const key = args("key") || null;
 const isSSL = (cert && key);

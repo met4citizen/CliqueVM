@@ -269,36 +269,56 @@ FUNCTION| DESCRIPTION
 
 ## Server (EXPERIMENTAL)
 
-By default, the model is computed on the your browser using Web Worker threads.
+By default, the model is computed in your browser using Web Worker threads.
 However, it is also possible to compute the model on an external WebSocket
 server.
 
 In order to run the server, install
-[Node.js](https://nodejs.org/en/download), clone the project, install the server, and run it:
+[Node.js](https://nodejs.org/en/download), clone the project, and install:
 
 ```
 git clone https://github.com/met4citizen/CliqueVM.git
 cd CliqueVM/server
 npm install
-node server.mjs --cert=/path/server.crt --key=/path/server.key --port=8888
+```
+
+There are two types of servers: a single server `server.mjs` and a distributed
+server `serverd.mjs`. The single server computes the whole model in one
+instance. Distributed servers compute only cliques, but unlike in the single
+server architecture, you can run and utilize several server instances, each
+running on a different computer.
+
+If you want to use the single server architecture, start the server with
+the following command:
+
+```
+node server.mjs --cert=/path/server.crt --key=/path/server.key --port=8880
+```
+
+Alternatively, if you want to use the distributed architecture, run the
+following command on each computer in your computer clusters:
+
+```
+node serverd.mjs --cert=/path/server.crt --key=/path/server.key --port=8881
 ```
 
 PARAMETER | DESCRIPTION
 :-- | :--
 `cert` | SSL certificate file. If not specified, SSL is not used.
 `key` | SSL certificate key file. If not specified, SSL is not used.
-`port` | Server port. Default port is `8888`.
+`port` | Server port. Default port is `8880` for single server and `8881` for distributed servers.
 `threads` | Number of threads used for computing the model from 1 to the number of CPU cores. Default is the number of CPU cores.
 
-Once the server is running, open CliqueVM page, click `Server` on toolbar,
-specify your server URL, and click the check box next to it to enable.
+Once the server/servers is/are running, open CliqueVM page, click `Server`
+on toolbar, specify your server URL(s), and click the check box next to it to
+enable.
 
 Notes:
 
-- If you run the server over SSL, use protocol `wss` on the URL, e.g. `wss://<domain.com>:8888/`.
-- If you run the server without SSL, use protocol `ws` on the URL, e.g. `ws://<domain.com>:8888/`.
+- If you run the server over SSL, use protocol `wss` on the URL, e.g. `wss://<domain.com>:8880/`.
+- If you run the server without SSL, use protocol `ws` on the URL, e.g. `ws://<domain.com>:8880/`.
 - If you run CliqueVM over HTTPS, but the server without SSL, you need to allow insecure content from your browser's settings (not recommended).
-- If you use a self-signed certificate on your server, you might need to first open the HTTPS page, e.g. "https://<domain.com>:8888/", on your browser to accept the certificate.
+- If you use a self-signed certificate on your server, you might need to first open the HTTPS page, e.g. "https://<domain.com>:8880/", on your browser to accept the certificate.
 
 
 ## Gallery

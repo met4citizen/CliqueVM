@@ -76,7 +76,8 @@
   #observer-box { width: 4.8vw; margin-left: -1vw; }
   #filter-box { width: 16vw; margin-left: -1vw; right: -4.3vw; }
   #server-box { width: 24vw; margin-left: -1vw; right: -4.3vw; }
-  #server-url { width: 20vw; pointer-events: auto; }
+  #server-url { width: 19vw; pointer-events: auto; font-size: 0.8vw; font-family: Verdana, Geneva, sans-serif; }
+  #serverd-url { width: 19vw; pointer-events: auto; resize: none; font-size: 0.8vw; font-family: Verdana, Geneva, sans-serif; }
   #export-box { top: -1.5vw; width: 25vw; height: 3.5vw; }
   #import-box { top: -1.5vw; width: 25vw; height: 3.5vw; }
   #export-json, #import-json {
@@ -267,11 +268,14 @@ function setLegend(legend=null) {
 async function init() {
 
   // Load server
-  const serverEnable = JSON.parse(localStorage.getItem('serverEnable')) || false;
-  d3.select('#server-enable').property( 'checked', serverEnable || null );
-  d3.select('#server').classed('selected', serverEnable );
-  const serverUrl = localStorage.getItem('serverUrl') || '';
+  const serverType = parseInt(localStorage.getItem('serverType')) || 0;
+  d3.select('#server-enable').property( 'checked', (serverType===1) ? true : null );
+  d3.select('#serverd-enable').property( 'checked', (serverType===2) ? true : null );
+  d3.select('#server').classed('selected', serverType !== 0 );
+  const serverUrl = localStorage.getItem('serverUrl') || "wss://localhost:8880/";
   d3.select('#server-url').property('value', serverUrl );
+  const serverdUrl = localStorage.getItem('serverdUrl') || "wss://localhost:8881/\nwss://localhost:8882/";
+  d3.select('#serverd-url').property('value', serverdUrl );
 
   // Check URL parameter 'model'
   // If set, import it to the model manager, otherwise use local storage.
@@ -291,7 +295,12 @@ async function init() {
 
   // Setup the model
   let model = mm.get();
-  let server = serverEnable ? serverUrl : null;
+  let server = null;
+  if ( serverType === 1 ) {
+    server = serverUrl;
+  } else if ( serverType === 2 ){
+    server = serverdUrl.split('\n');
+  }
   vm.reset(model, server );
   d3.select('#trace').dispatch('click');
 
@@ -379,7 +388,12 @@ document.addEventListener('DOMContentLoaded', function(e) {
   // Reset
   d3.select('#reset').on('click', function(e) {
     d3.selectAll('#play,#yalp').classed('selected',false);
-    const server = d3.select("#server-enable").property("checked") ? d3.select("#server-url").property("value") : null;
+    let server = null;
+    if ( d3.select("#server-enable").property("checked") ) {
+      server = d3.select("#server-url").property("value");
+    } else if ( d3.select("#serverd-enable").property("checked") ){
+      server = d3.select("#serverd-url").property("value").split('\n');
+    }
     vm.reset( null, server );
   });
 
@@ -617,16 +631,39 @@ document.addEventListener('DOMContentLoaded', function(e) {
   });
 
   d3.select('#server-enable').on('change',function(e) {
-    const serverEnable = e.currentTarget.checked;
-    d3.select('#server').classed('selected', serverEnable );
-    localStorage.setItem('serverEnable', JSON.stringify(serverEnable) );
     d3.selectAll('#play,#yalp').classed('selected',false);
-    const server = serverEnable ? d3.select("#server-url").property("value") : null;
-    vm.reset( null, server );
+    if ( e.currentTarget.checked ) {
+      d3.select("#serverd-enable").node().checked = false;
+      localStorage.setItem('serverType', '1' );
+      d3.select('#server').classed('selected', true );
+      vm.reset( null, d3.select("#server-url").property("value") );
+    } else {
+      localStorage.setItem('serverType', '0' );
+      d3.select('#server').classed('selected', false );
+      vm.reset( null, null );
+    }
   });
 
   d3.select('#server-url').on('change keyup paste input',function(e) {
     localStorage.setItem('serverUrl', d3.select('#server-url').property('value') );
+  });
+
+  d3.select('#serverd-enable').on('change',function(e) {
+    d3.selectAll('#play,#yalp').classed('selected',false);
+    if ( e.currentTarget.checked ) {
+      d3.select("#server-enable").node().checked = false;
+      localStorage.setItem('serverType', '2' );
+      d3.select('#server').classed('selected', true );
+      vm.reset( null, d3.select("#serverd-url").property("value").split('\n') );
+    } else {
+      localStorage.setItem('serverType', '0' );
+      d3.select('#server').classed('selected', false );
+      vm.reset( null, null );
+    }
+  });
+
+  d3.select('#serverd-url').on('change keyup paste input',function(e) {
+    localStorage.setItem('serverdUrl', d3.select('#serverd-url').property('value') );
   });
 
 
@@ -1096,7 +1133,18 @@ document.addEventListener('DOMContentLoaded', function(e) {
               <span class="subtitle" style="margin-left: 4.2vw;">Compute on external server:</span>
             </span>
             <span class="unit unit-text">
-              <input id="server-url" type="text" style="width: 19vw;">
+              <input id="server-url" type="text">
+            </span>
+          </div>
+          <div class="group">
+            <span class="unit unit-text">
+              <input id="serverd-enable" type="checkbox">
+            </span>
+            <span class="unit unit-zero">
+              <span class="subtitle" style="margin-left: 4.2vw;">Distributed clique computing:</span>
+            </span>
+            <span class="unit unit-text">
+              <textarea id="serverd-url" rows="3"></textarea>
             </span>
           </div>
         </div>

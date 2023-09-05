@@ -1,48 +1,25 @@
 import { parentPort } from "node:worker_threads";
 
 // Data model
-const V2 = new Map(); // Id to array of parent ids
+const G = new Map(); // Id to vertex { id, parent: [] }, if clique property 'clique'
 
 // Event handler
 parentPort.on("message", (d) => {
-  if ( d.action === 'clique' ) {
-    clique(d);
-  } else if ( d.action === 'add' ) {
-    add(d);
-  } else if ( d.action === 'del' ) {
-    del(d);
+  if ( d.action === 'clique' ) { // Find cliques
+    let { states, ...result } = d;
+    result['cliques'] = BronKerbosch2( states.map(id=>G.get(id)) ).map(v=>v.map(y=>y.id) );
+    parentPort.postMessage(result);
+  } else if ( d.action === 'add' ) { // Add new vertices and establish ancestral connections
+    for( let i=d.start; i<=d.end; i++ ) {
+      let o = { id: i, parent: [] };
+      if ( d.clique ) o['clique'] = true;
+      G.set(i,o);
+    }
+    d.links.forEach( l => G.get(l[0]).parent.push(G.get(l[1])) );
+  } else if ( d.action === 'del' ) { // Delete the last generation
+    for(let i=d.end; i>=d.start; i--) G.delete(i);
   }
 });
-
-// Add a new generation
-function add(d) {
-
-  // Add new vertices
-  for( let i=d.start; i<=d.end; i++ ) {
-    let o = { id: i, parent: [] };
-    if ( d.clique ) o['clique'] = true;
-    V2.set(i,o);
-  }
-
-  // Establish ancestral connections
-  d.links.forEach( l => V2.get(l[0]).parent.push(V2.get(l[1])) );
-}
-
-// Delete the last generation
-function del(d) {
-  for(let i=d.end; i>=d.start; i--) V2.delete(i);
-}
-
-// Find cliques
-function clique(d) {
-  const U = d.states.map( id => V2.get(id) );
-  const MC = BronKerbosch2(U);
-  parentPort.postMessage( {
-    task: d.task,
-    job: d.job,
-    cliques: MC.map( v => v.map( y => y.id) )
-  });
-}
 
 // Return true, if the two vertices are spacelike separated
 function isSpacelike2( v1, v2 ) {
