@@ -14,6 +14,7 @@ class ModelAPI {
   constructor() {
     this._id = 0;
     this._opt = {};
+    this._fmem = [BigInt(0), BigInt(1)]; // Factorial memoization
   }
 
   /**
@@ -49,6 +50,18 @@ class ModelAPI {
   */
   clone(o) {
     return JSON.parse(JSON.stringify(o));
+  }
+
+  /**
+  * Factorial with BigInt and memoization.
+  * @param {bigint} n
+  * @return {bigint} n!
+  */
+  factorial(n) {
+    while( this._fmem.length <= n ) {
+      this._fmem.push( this._fmem[ this._fmem.length-1 ] * BigInt( this._fmem.length ) );
+    }
+    return BigInt( this._fmem[n] );
   }
 
   /**

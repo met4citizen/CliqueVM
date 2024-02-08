@@ -257,6 +257,7 @@ FUNCTION| DESCRIPTION
 <nobr>`set(key,value)`</nobr> | Set option. Currently supports the following keys: `observer` (1=quantum, 2=classic), `maxcliquesperloc` (number) and `maxstatesperclique` (number).
 <nobr>`get(key)`</nobr> | Get option value.
 <nobr>`clone(x)`</nobr> | Makes a deep copy of the given data structure.
+<nobr>`factorial(x)`</nobr> | Factorial of `x`.
 <nobr>`shuffle(arr)`</nobr> | Shuffles an array in place using the Fisher-Yates shuffle.
 <nobr>`*comb(arr,[size])`</nobr> | Generates all combinations of a set. `size` is the length of the combination. An example:<br/>`comb([a,b,c],2)` -> `[a,b] [a,c] [b,c]`
 <nobr>`*perm(arr,[size])`</nobr> | Generates all permutations of a set. `size` is the length of the permutation. An example:<br/>`perm([a,b,c],2)` -> `[a,b] [a,c] [b,a] [b,c] [c,a] [c,b]`
