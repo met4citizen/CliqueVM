@@ -199,7 +199,7 @@ class ForceGraph {
 			let coord = d.coords[i];
 			let metric = d.metric[i];
 			let stats = d.stats[i]; // Number of operations, states, cliques to loc
-			let n = stats[0] || 1;
+			let n = stats[1] || 1;
 
 			// Construct CL, LC and M
 			let cl = this.CL.get(coord);
