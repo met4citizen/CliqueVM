@@ -276,7 +276,7 @@ class ForceGraph {
 			let coord = this.prevd.coords[i];
 			let metric = this.prevd.metric[i];
 			let stats = this.prevd.stats[i]; // Number of operations, states, cliques to loc
-			let n = stats[0] || 1;
+			let n = stats[1] || 1;
 
 			// Delete links based on parent coordinates
 			let pcoords = [...new Set( metric.map( x => this.LC.get(x) ) ) ];
@@ -318,7 +318,7 @@ class ForceGraph {
 			let coord = d.coords[i];
 			let metric = d.metric[i];
 			let stats = d.stats[i]; // Number of operations, states, cliques to loc
-			let n = stats[0] || 1; // Count operations
+			let n = stats[1] || 1; // Count operations
 			let node = this.dataN.get( coord );
 			if ( node ) {
 				node.stepcnt += n;
