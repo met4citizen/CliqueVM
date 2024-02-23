@@ -368,3 +368,48 @@ Copy the JSON string below and import it to the app:
   "detectors":"return Array.from({length:7},(_,i)=>i-3+',0,0');"
 }
 ```
+
+#### Violation of CHSH inequality
+
+<img src="img/chshgame.jpg" width="512"><br/>
+
+In the [CHSH game](https://en.wikipedia.org/wiki/CHSH_inequality#CHSH_game),
+two players, Alice and Bob, are not allowed to communicate with each other.
+The referee sends them each a random bit,
+$Q_A,Q_B\in \lbrace 0,1\rbrace$, for which they both
+respond with a bit, $R_A,R_B\in \lbrace 0,1\rbrace$.
+If the logical AND of questions equals the logical XOR of responses,
+they win. It can be shown that in the repeated game Alice and Bob can win
+at most 75% of the time. This classical limit,
+$P(Q_A\wedge Q_B = R_A\oplus R_B)\leq 75\%$, is called the CHSH inequality.
+
+Suppose we now change the game so that the referee sends Alice and Bob not
+only two random bits but also two entangled particles. From actual physical
+experiments we know that if Alice and Bob measure their own entangled
+particles in a certain way, they can break the classical 75% limit.
+This is called the violation of CHSH inequality.
+
+In the following CliqueVM model, we show the violation of CHSH inequality
+using multithreaded evolution and bit rotations (circular shift).
+The final results that the model prints to the console log are the following:
+
+```
+--- SIMULATION STARTS ---
+0*0 == 0^0  WIN 41.7% | 0^1 Lost  8.3% | 1^0 Lost  8.3% | 1^1  WIN 41.7%
+0*1 == 0^0  WIN 41.7% | 0^1 Lost  8.3% | 1^0 Lost  8.3% | 1^1  WIN 41.7%
+1*0 == 0^0  WIN 41.7% | 0^1 Lost  8.3% | 1^0 Lost  8.3% | 1^1  WIN 41.7%
+1*1 == 0^0 Lost  8.3% | 0^1  WIN 41.7% | 1^0  WIN 41.7% | 1^1 Lost  8.3%
+--- SIMULATION ENDS ---
+```
+
+
+Copy the JSON string below and import it to the app:
+```json
+{
+  "init":"// Create a matrix for the results\nthis.qs = [[0,0],[0,1],[1,0],[1,1]]; // Possible questions\nthis.rs = [[0,0],[0,1],[1,0],[1,1]]; // Possible responses\nthis.results = {};\nfor( const q of this.qs ) {\n  const qkey = q.join('*');\n  this.results[qkey] = {};\n  for( const r of this.rs ) {\n    const rkey = r.join('^');\n    this.results[qkey][rkey] = {\n      status: ( (q[0] * q[1]) === (r[0] ^ r[1]) ) ? 'WIN' : 'Lost',\n      weight: BigInt(0)\n    };\n  }\n}\n\n// Spin in computational basis\nthis.spinup = '00001111';\nthis.spindown = '11110000';\n\n\n// Helper functions for binary vector rotation and Hamming distance metric\nthis.rot = (s,n) => { return s.slice(-n % s.length) + s.slice(0,-n % s.length); }\nthis.dhamm = (s,t) => { return [...s].reduce( (a,b,i) => a + (b === t.charAt(i) ? 0 : 1),0 ) }\n\n// Start the first round\nconsole.log('--- SIMULATION STARTS ---');\n\nreturn [ \"Questions\"];",
+  "oper":"// Location is the first part of the state and the same within the clique\n// Subsequent parts of the state contain the messages and memories\nconst location = c[0].split(\"-\")[0];\nconst messages = {};\nc.forEach( x => {\n  const m = x.split('-')[1];\n  if ( m ) {\n    const p = m.split('+');\n    messages[p[0]] = (p.length > 2 ? p.slice(1) : p[1]);\n  }\n});\n\n// Classical state machine\nconst ops = [];\nif ( location === 'Questions' ) {\n  \n  // Send classical messages, one for Alice, one for Bob\n  const [ QA, QB ] = this.qs.shift();\n  ops.push( [ \"AliceQ-Question+\" + QA, \"BobQ-Question+\" + QB, \"Particle\" ] );\n\n  // Next question, if no more questions then report\n  if ( this.qs.length ) {\n    ops.push( [ \"Questions\" ] );\n  } else {\n    ops.push( [ \"ZZZReport\" ] );\n  }\n  \n} else if ( location === 'Particle' ) {\n\n  // Send entangled spin particles to Alice and Bob\n  // Here particle is a superposition of all binary rotations\n  for( let i=0; i<this.spinup.length; i++ ) {\n    ops.push( [\n      'AliceSG-Particle+' + this.rot(this.spinup,i),\n      'BobSG-Particle+' + this.rot(this.spindown,i)\n    ]);\n  }\n  \n} else if ( location === 'AliceQ' ) {\n\n  // Parse message and set measurement angle:\n  // - If question is 0, do not rotate\n  // - If question is 1, rotate -45° (-2*pi/8)\n  const question = messages[\"Question\"];\n  const rotate = ( question === '0' ? 0 : Math.round( (-2/8) * this.spinup.length) );\n  const setting = this.rot(this.spinup, rotate);\n  ops.push( [ 'AliceSG-Measure+' + question + '+' + setting ] );\n  \n} else if ( location === 'AliceSG' ) {\n\n  // Parse message\n  const [question,setting] = messages[\"Measure\"];\n  const particle = messages[\"Particle\"];\n\n  // Simulate Stern–Gerlach\n  // You as an observer can only detect up/down, which\n  // respond to responses 0/1\n  const d = this.dhamm(particle,setting);\n  const limit = Math.round(this.spinup.length / 2);\n  const R0 = 'Responses-Alice+' + question + '+' + '0';\n  const R1 = 'Responses-Alice+' + question + '+' + '1';\n  if ( d > limit ) ops.push( [ R1, R1 ] );\n  if ( d == limit ) ops.push( [ R0 ], [ R1 ] );\n  if ( d < limit ) ops.push( [ R0, R0 ] );\n  \n} else if ( location === 'BobQ' ) {\n\n  // Parse message and set measurement angle:\n  // - If question is 0, rotate 135° (3*pi/8)\n  // - If question is 1, rotate -135° (-3*pi/8)\n  const question = messages[\"Question\"];\n  const rotate = ( question === '0' ? Math.round( (3/8) * this.spinup.length) : Math.round( (-3/8) * this.spinup.length) );\n  const setting = this.rot(this.spinup, rotate);\n  ops.push( [ 'BobSG-Measure+' + question + '+' + setting ] );\n  \n} else if ( location === 'BobSG' ) {\n\n  // Parse message\n  const [question,setting] = messages[\"Measure\"];\n  const particle = messages[\"Particle\"];\n\n  // Simulate Stern–Gerlach\n  // You as an observer can only detect up/down, which\n  // respond to responses 0/1\n  const d = this.dhamm(particle,setting);\n  const limit = Math.round(this.spinup.length / 2);\n  const R0 = 'Responses-Bob+' + question + '+' + '0';\n  const R1 = 'Responses-Bob+' + question + '+' + '1';\n  if ( d > limit ) ops.push( [ R1, R1] );\n  if ( d == limit ) ops.push( [ R0 ], [ R1 ] );\n  if ( d < limit ) ops.push( [ R0, R0 ] );\n  \n} else if ( location === 'Responses' ) {\n\n  // Parse the original questions and the responses\n  const [QA,RA] = messages[\"Alice\"];\n  const [QB,RB] = messages[\"Bob\"];\n  \n  // Add the weight to the report\n  // For an observer, Charlie, the weight is the number of permutations with\n  // the clique, which is the factorial of the clique size.\n  this.results[QA+'*'+QB][RA+'^'+RB].weight += this.factorial(c.length);\n  \n} else if ( location === 'Report' ) {\n  \n  // Print report for all questions\n  for( let [q,rs] of Object.entries(this.results) ) {\n\n    // Sum of the factorials in order to calculate the probabilities\n    const tot = Object.values(rs).reduce( (a,b) => a + (b.weight || BigInt(0)), BigInt(0) );\n\n    // Print summary for question q\n    let s = [];\n    for( let [r,vs] of Object.entries(rs) ) {\n      const p = Number( (vs.weight || BigInt(0) ) * 10000n / tot ) / 10000;\n      s.push( r + ' ' + vs.status.padStart(4) + ' ' + (100*p).toFixed(1).padStart(4) + '%' );\n    }\n    console.log( q + ' == ' + s.join(' | ') );                \n  }\n\n  console.log('--- SIMULATION ENDS ---');\n  \n} else if ( location.startsWith('Z') ) {\n  // Delayed state\n  ops.push( c.map( x => x.substring(1) ) );\n}\n\nreturn ops;",
+  "coord":"// Coordinate is the first part of the state\nreturn s.split('-')[0];",
+  "show":"return true;",
+  "detectors":"return [];"
+}
+```
