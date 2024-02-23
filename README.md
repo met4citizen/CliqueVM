@@ -381,7 +381,7 @@ respond with a bit, $R_A,R_B\in \lbrace 0,1\rbrace$.
 If the logical AND of questions equals the logical XOR of responses,
 they win. It can be shown that in the repeated game Alice and Bob can win
 at most 75% of the time. This classical limit,
-$P(Q_A\wedge Q_B = R_A\oplus R_B)\leq 75\%$, is called the CHSH inequality.
+$P(Q_A\wedge Q_B = R_A\oplus R_B)\leq 75\\%$, is called the CHSH inequality.
 
 Suppose we now change the game so that the referee sends Alice and Bob not
 only two random bits but also two entangled particles. From actual physical
