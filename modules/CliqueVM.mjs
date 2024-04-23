@@ -11,10 +11,12 @@ class CliqueVM {
 	* @param {function} fn Callback function, fn('type',data)
 	* @param {Object} edot DOM element for the dot graph
 	* @param {Object} eforce DOM element for the force graph
+	* @param {Object} elog DOM element for the log messages (textarea)
 	*/
-	constructor(fn,edot,eforce) {
+	constructor(fn,edot,eforce,elog) {
 		this.fn = fn; // Callback function
 		this.edot = edot; // DOM element for DOT graph
+		this.elog = elog; // DOM element for textarea log messages
 		this.fg = new ForceGraph( fn, edot, eforce ); // Force graph 3D
 
 		this.model = null; // Current model
@@ -97,7 +99,11 @@ class CliqueVM {
 		}
 		this.wwmodel.onmessage = (msg) => {
 			const d = msg.data;
-			if ( d.status === 'in-progress' ) {
+			if ( d.status === 'log' ) {
+				if ( d.arguments && this.elog ) {
+					this.elog.value += d.arguments.map( x => typeof x === 'string' ? x : JSON.stringify(x) ).join(" ") + '\n';
+				}
+			} else if ( d.status === 'in-progress' ) {
 
 				// Notify progress
 				this.fn('step-progress',Math.round(d.progress*100));

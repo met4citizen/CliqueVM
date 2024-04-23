@@ -36,6 +36,20 @@ class ModelAPI {
   }
 
   /**
+  * Log.
+  * @param {Object[]} args
+  */
+  log(...args) {
+    console.log(...args);
+    if ( postMessage ) {
+      postMessage({
+        status: 'log',
+        arguments: args
+      });
+    }
+  }
+
+  /**
 	* Generate new id.
 	* @return {number} Id.
 	*/

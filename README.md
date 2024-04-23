@@ -254,6 +254,7 @@ example: `this.id()`.
 FUNCTION| DESCRIPTION
 :-- | :--
 <nobr>`id()`</nobr> | Returns a new unique number from [0,1,2,3...]. Reseting the model also resets the id counter.
+<nobr>`log(...args)`</nobr> | Log message `args`.
 <nobr>`set(key,value)`</nobr> | Set option. Currently supports the following keys: `observer` (1=quantum, 2=classic), `maxcliquesperloc` (number) and `maxstatesperclique` (number).
 <nobr>`get(key)`</nobr> | Get option value.
 <nobr>`clone(x)`</nobr> | Makes a deep copy of the given data structure.

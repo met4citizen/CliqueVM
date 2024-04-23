@@ -103,7 +103,9 @@ class ModelManager {
 
 		worker.onmessage = (e) => {
 			clearTimeout( timer );
-			callback(e.data)
+			if ( e.data && e.data.status !== 'log' && e.data.status !== 'in-progress' ) {
+				callback(e.data);
+			}
     };
 
     worker.onerror = (e) => {
