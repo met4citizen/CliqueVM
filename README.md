@@ -13,6 +13,13 @@ into a new generation of states.
 The purpose of the project is NOT to make an app for practical simulations,
 but to study the underlying concepts and ideas.
 
+For an overview of the notation used in the app, check out
+the following YouTube video. In the video, David introduces us to
+the CHSH game and explores the mystery of quantum entanglement
+by modeling particles as computational objects.
+
+[<img src="screenshot2.jpg" width="300"/>](https://youtu.be/vNJ9Ifv-as8)
+
 The app uses [@hpcc-js/wasm](https://github.com/hpcc-systems/hpcc-js-wasm)
 for compiling [Graphviz](https://graphviz.org) DOT language into SVG,
 [3d Force-Directed Graph](https://github.com/vasturiano/3d-force-graph)
