@@ -79,7 +79,6 @@
   #observer-box { width: 4.8vw; margin-left: -1vw; }
   #filter-box { width: 16vw; margin-left: -1vw; right: -4.3vw; }
   #server-box { width: 24vw; margin-left: -1vw; right: -4.3vw; }
-  #server-url { width: 19vw; pointer-events: auto; font-size: 0.8vw; font-family: Verdana, Geneva, sans-serif; }
   #serverd-url { width: 19vw; pointer-events: auto; resize: none; font-size: 0.8vw; font-family: Verdana, Geneva, sans-serif; }
   #export-box { top: -1.5vw; width: 25vw; height: 3.5vw; }
   #import-box { top: -1.5vw; width: 25vw; height: 3.5vw; }
@@ -140,7 +139,7 @@ import { ModelManager } from './modules/ModelManager.mjs';
 // Global variables
 let mm; // Model Manager
 let vm; // Virtual Machine
-const codenames = ['init','oper','coord','show','detectors']; // Code segments
+const codenames = ['init','oper','coord','probs','show','detectors']; // Code segments
 let prevcode = null; // Code when focusin
 let scale = 0.5; // Zoom level
 let graphw = 40; // Graph window width in percentage
@@ -272,11 +271,8 @@ async function init() {
 
   // Load server
   const serverType = parseInt(localStorage.getItem('serverType')) || 0;
-  d3.select('#server-enable').property( 'checked', (serverType===1) ? true : null );
   d3.select('#serverd-enable').property( 'checked', (serverType===2) ? true : null );
   d3.select('#server').classed('selected', serverType !== 0 );
-  const serverUrl = localStorage.getItem('serverUrl') || "wss://localhost:8880/";
-  d3.select('#server-url').property('value', serverUrl );
   const serverdUrl = localStorage.getItem('serverdUrl') || "wss://localhost:8881/\nwss://localhost:8882/";
   d3.select('#serverd-url').property('value', serverdUrl );
 
@@ -299,9 +295,7 @@ async function init() {
   // Setup the model
   let model = mm.get();
   let server = null;
-  if ( serverType === 1 ) {
-    server = serverUrl;
-  } else if ( serverType === 2 ){
+  if ( serverType === 2 ){
     server = serverdUrl.split('\n');
   }
   vm.reset(model, server );
@@ -392,9 +386,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
   d3.select('#reset').on('click', function(e) {
     d3.selectAll('#play,#yalp').classed('selected',false);
     let server = null;
-    if ( d3.select("#server-enable").property("checked") ) {
-      server = d3.select("#server-url").property("value");
-    } else if ( d3.select("#serverd-enable").property("checked") ){
+    if ( d3.select("#serverd-enable").property("checked") ){
       server = d3.select("#serverd-url").property("value").split('\n');
     }
     vm.reset( null, server );
@@ -633,28 +625,9 @@ document.addEventListener('DOMContentLoaded', function(e) {
     }
   });
 
-  d3.select('#server-enable').on('change',function(e) {
-    d3.selectAll('#play,#yalp').classed('selected',false);
-    if ( e.currentTarget.checked ) {
-      d3.select("#serverd-enable").node().checked = false;
-      localStorage.setItem('serverType', '1' );
-      d3.select('#server').classed('selected', true );
-      vm.reset( null, d3.select("#server-url").property("value") );
-    } else {
-      localStorage.setItem('serverType', '0' );
-      d3.select('#server').classed('selected', false );
-      vm.reset( null, null );
-    }
-  });
-
-  d3.select('#server-url').on('change keyup paste input',function(e) {
-    localStorage.setItem('serverUrl', d3.select('#server-url').property('value') );
-  });
-
   d3.select('#serverd-enable').on('change',function(e) {
     d3.selectAll('#play,#yalp').classed('selected',false);
     if ( e.currentTarget.checked ) {
-      d3.select("#server-enable").node().checked = false;
       localStorage.setItem('serverType', '2' );
       d3.select('#server').classed('selected', true );
       vm.reset( null, d3.select("#serverd-url").property("value").split('\n') );
@@ -695,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     d3.selectAll(".js-debug").text('');
     d3.select(this).classed('highlight',false);
     const model = mm.get();
-    const server = d3.select("#server-enable").property("checked") ? d3.select("#server-url").property("value") : null;
+    const server = d3.select("#serverd-enable").property("checked") ? d3.select("#serverd-url").property("value").split('\n') : null;
     d3.select("#logtext").property("value","");
     vm.reset(model,server);
   });
@@ -828,6 +801,18 @@ document.addEventListener('DOMContentLoaded', function(e) {
           </p>
           <div id="coord" class="code"></div>
           <p id="coord-debug" class="js js-debug noselect">
+          </p>
+        </div>
+
+        <h1 class="title noselect"><span class="collapse">&#9654;</span>PROBABILITIES<span id="probs-test" class="js-test hidden"></span></h1>
+        <div style="display:none">
+          <p class="js noselect">
+            <span class="js-key">@param</span> {<span class="js-type">string</span>} <span class="js-param">coord</span> Coordinate<br>
+            <span class="js-key">@param</span> {<span class="js-type">any[][]</span>} <span class="js-param">cs</span> Cliques; array of array of states.
+            <span class="js-key">@return</span> {<span class="js-type">number[]</span>} Clique probabilities or null/undefined.
+          </p>
+          <div id="probs" class="code"></div>
+          <p id="probs-debug" class="js js-debug noselect">
           </p>
         </div>
 
@@ -1170,17 +1155,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
       <span class="unit unit-zero">
         <div id="server-box" class="box-bottom noselect hidden">
-          <div class="group">
-            <span class="unit unit-text">
-              <input id="server-enable" type="checkbox">
-            </span>
-            <span class="unit unit-zero">
-              <span class="subtitle" style="margin-left: 4.2vw;">Compute on external server:</span>
-            </span>
-            <span class="unit unit-text">
-              <input id="server-url" type="text">
-            </span>
-          </div>
           <div class="group">
             <span class="unit unit-text">
               <input id="serverd-enable" type="checkbox">

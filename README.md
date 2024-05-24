@@ -147,15 +147,22 @@ observer as a wave-function collapse.
 From the internal observer's point of view, the proportion of all
 the possible
 [Hamiltonian paths](https://en.wikipedia.org/wiki/Hamiltonian_path)
-that lead to the maximal clique $\mathcal{F_i}\in\mathcal{F}$ is
-the probability $p_i$ of that outcome.
+that lead to the maximal clique $\mathcal{F_i}\in\mathcal{F}$ is one way to
+define the probability $p_i$ of that outcome.
 
 $\displaystyle\qquad p_i={{|\mathcal{F_i}|!}\over{\sum\limits_{j} |\mathcal{F_j}|!}},\quad i\in \lbrace 1,\dots,|\mathcal{F}| \rbrace$
 
 Note that from the external point of view - from "the point of nowhere" - all
 the possible interactions get actualised without any randomness or
-probabilities. In this context, often called the Many-Worlds
-interpretation, $p_i$ can be seen as the path weight.
+probabilities.
+
+The above is, of course, just one possibility. CliqueVM is a framework,
+and the way you should calculate the probabilities depends on your model.
+For example, if the order of interactions doesn't count in your model,
+the weights can be directly proportional to the sizes of maximal cliques.
+Another approach is to ignore the weights altogether. See the Model API
+section for some pre-made functions to calculate local probabilities
+based on maximal cliques.
 
 
 ## Graphs
@@ -220,6 +227,22 @@ as an observer-theoretic coarse-graining and/or encoding function. An example:
 return s.toString();
 ```
 
+The `PROBABILITIES` gets a coordinate and all its maximal cliques as
+arrays of states and returns an array of probabilities. This method is called
+whenever a new location is projected or, if the `coord` is `null`, when
+probabilities are used in a filter.
+
+```javascript
+/**
+* @param {string} coord Coordinate
+* @param {any[][]} cs Array of maximal cliques each as an array of states.
+* @return {number[]} Clique probabilities (or null/undefined)
+**/
+const ps = this.probsPerm(cs);
+this.log(coord,ps);
+return ps;
+```
+
 The `VISIBILITY` gets a state as its input and returns `true` or `false`
 depending on whether the state is to be shown or not. Note: This doesn't
 affect the processing, only how the states get visualised. An example:
@@ -272,6 +295,10 @@ FUNCTION| DESCRIPTION
 <nobr>`*cart(...sets)`</nobr> | Generates the cartesian product of the given sets. An example:<br/>`cart([a,b],[c,d,e])` -> `[a,c] [a,d] [a,e] [b,c] [b,d] [b,e]`
 <nobr>`BronKerbosch(V,N)`</nobr> | Finds maximal cliques of the set `V` using the Bron-Kerbosch algorithm. `N` is a WeakMap of neighbours for each vertex.
 <nobr>`rewriteStr(s,rules)`</nobr> | Rewrite string `s` with `rules`. Return all overlapping maximal results. For example:<br/> `rewriteStr('BAA',[['BA','AB'],['A','C']])` -> `['BCC', 'ABC']`.
+<nobr>`probsPerm(cs)`</nobr> | Maximal clique probabilities with weights based on the number of state permutations. Note: This is used as a default algorithm for calculating probabilities, if the `probs` function returns undefined/null.
+<nobr>`probsComb(cs)`</nobr> | Maximal clique probabilities with weights based on the number of state combinations.
+<nobr>`probsNone(cs)`</nobr> | Maximal clique probabilities without weights, but resolving splits.
+<nobr>`probsGibbs(es)`</nobr> | Calculate probabilities based on clique energies `es` using Gibbs Random Field. EXPERIMENTAL
 
 **TODO:** Add utility functions for typical use cases such as graph rewriting.
 
@@ -280,34 +307,17 @@ FUNCTION| DESCRIPTION
 
 By default, the model is computed in your browser using Web Worker threads.
 However, it is also possible to compute the model on an external WebSocket
-server.
+servers that compute cliques. The app supports distributed architecture, so
+you can run multiple server instances on different computers.
 
 In order to run the server, install
-[Node.js](https://nodejs.org/en/download), clone the project, and install:
+[Node.js](https://nodejs.org/en/download), clone the project, install
+and run:
 
 ```
 git clone https://github.com/met4citizen/CliqueVM.git
 cd CliqueVM/server
 npm install
-```
-
-There are two types of servers: a single server `server.mjs` and a distributed
-server `serverd.mjs`. The single server computes the whole model in one
-instance. Distributed servers compute only cliques, but unlike in the single
-server architecture, you can run and utilize several server instances, each
-running on a different computer.
-
-If you want to use the single server architecture, start the server with
-the following command:
-
-```
-node server.mjs --cert=/path/server.crt --key=/path/server.key --port=8880
-```
-
-Alternatively, if you want to use the distributed architecture, run the
-following command on each computer in your computer clusters:
-
-```
 node serverd.mjs --cert=/path/server.crt --key=/path/server.key --port=8881
 ```
 
@@ -315,7 +325,7 @@ PARAMETER | DESCRIPTION
 :-- | :--
 `cert` | SSL certificate file. If not specified, SSL is not used.
 `key` | SSL certificate key file. If not specified, SSL is not used.
-`port` | Server port. Default port is `8880` for single server and `8881` for distributed servers.
+`port` | Server port. Default port is `8881`.
 `threads` | Number of threads used for computing the model from 1 to the number of CPU cores. Default is the number of CPU cores.
 
 Once the server/servers is/are running, open CliqueVM page, click `Server`
@@ -342,6 +352,7 @@ Copy the JSON string below and import it to the app:
   "init":"return [\"ABBABAA\"];",
   "oper":"let a=/BA/gi,b=\"AB\",r,o=[];\nwhile( r=a.exec(c[0]) ) {\n  let s = c[0].split(\"\");\n  s.splice(r.index,b.length,b);\n  o.push( [s.join(\"\")] );\n};\nreturn o;",
   "coord":"return s;",
+  "probs":"",
   "show":"return true;",
   "detectors":"return [];"
 }
@@ -357,6 +368,7 @@ Copy the JSON string below and import it to the app:
   "init":"let v = this.id();\nreturn [[v,v],[v,v]];",
   "oper":"let s = this.clone(c);\nthis.shuffle(s);\nif(s.length>=2){\n  let v1=s[0][0],v2=s[0][1],v3=s[1][1],v4=this.id();\n  s.splice(0,2,[v1,v2],[v1,v4],[v2,v4],[v3,v4]);\n}\nreturn [s];",
   "coord":"return s[0].toString();",
+  "probs":"",
   "show":"return true;",
   "detectors":"return [];"
 }
@@ -372,6 +384,7 @@ Copy the JSON string below and import it to the app:
   "init":"return [{x:0,y:0,z:0},{x:0,y:0,z:0}];",
   "oper":"let s=[],t=[];\nfor( let p of c ) {\n  let [a,b]=this.clone([p,p]);\n  let i=this.shuffle(['x','y','z'])[0];\n  if (a[i]<3) a[i]++;\n  if (b[i]>-3) b[i]--;\n  s.push(a);\n  t.push(b);\n}\nreturn [s,t];",
   "coord":"return s.x+','+s.y+','+s.z;",
+  "probs":"",
   "show":"return true;",
   "detectors":"return Array.from({length:7},(_,i)=>i-3+',0,0');"
 }
@@ -403,20 +416,20 @@ The final results that the model prints to the log are the following:
 
 ```
 --- SIMULATION STARTS ---
-0*0 == 0^0  WIN 41.7% | 0^1 Lost  8.3% | 1^0 Lost  8.3% | 1^1  WIN 41.7%
-0*1 == 0^0  WIN 41.7% | 0^1 Lost  8.3% | 1^0 Lost  8.3% | 1^1  WIN 41.7%
-1*0 == 0^0  WIN 41.7% | 0^1 Lost  8.3% | 1^0 Lost  8.3% | 1^1  WIN 41.7%
-1*1 == 0^0 Lost  8.3% | 0^1  WIN 41.7% | 1^0  WIN 41.7% | 1^1 Lost  8.3%
---- SIMULATION ENDS ---
+0∧0 = 0⊕0 42.84% | 0⊕1 7.14% | 1⊕0 7.14% | 1⊕1 42.84%
+0∧1 = 0⊕0 42.84% | 0⊕1 7.14% | 1⊕0 7.14% | 1⊕1 42.84%
+1∧0 = 0⊕0 42.84% | 0⊕1 7.14% | 1⊕0 7.14% | 1⊕1 42.84%
+1∧1 = 0⊕0 7.14% | 0⊕1 42.84% | 1⊕0 42.84% | 1⊕1 7.14%
 ```
 
 
 Copy the JSON string below and import it to the app:
 ```json
 {
-  "init":"// Create a matrix for the results\nthis.qs = [[0,0],[0,1],[1,0],[1,1]]; // Possible questions\nthis.rs = [[0,0],[0,1],[1,0],[1,1]]; // Possible responses\nthis.results = {};\nfor( const q of this.qs ) {\n  const qkey = q.join('∧');\n  this.results[qkey] = {};\n  for( const r of this.rs ) {\n    const rkey = r.join('⊕');\n    this.results[qkey][rkey] = {\n      status: ( (q[0] * q[1]) === (r[0] ^ r[1]) ) ? 'W' : 'L',\n      weight: BigInt(0)\n    };\n  }\n}\n\n// Spin in computational basis\nthis.spinup = '00001111';\nthis.spindown = '11110000';\n\n\n// Helper functions for binary vector rotation and Hamming distance metric\nthis.rot = (s,n) => { return s.slice(-n % s.length) + s.slice(0,-n % s.length); }\nthis.dhamm = (s,t) => { return [...s].reduce( (a,b,i) => a + (b === t.charAt(i) ? 0 : 1),0 ) }\n\n// Start the first round\nthis.log('--- SIMULATION STARTS ---');\n\nreturn [ \"Questions\"];",
-  "oper":"// Location is the first part of the state and the same within the clique\n// Subsequent parts of the state contain the messages and memories\nconst location = c[0].split(\"-\")[0];\nconst messages = {};\nc.forEach( x => {\n  const m = x.split('-')[1];\n  if ( m ) {\n    const p = m.split('+');\n    messages[p[0]] = (p.length > 2 ? p.slice(1) : p[1]);\n  }\n});\n\n// Classical state machine\nconst ops = [];\nif ( location === 'Questions' ) {\n  \n  // Send classical messages, one for Alice, one for Bob\n  const [ QA, QB ] = this.qs.shift();\n  ops.push( [ \"AliceQ-Question+\" + QA, \"BobQ-Question+\" + QB, \"Particle\" ] );\n\n  // Next question, if no more questions then report\n  if ( this.qs.length ) {\n    ops.push( [ \"Questions\" ] );\n  } else {\n    ops.push( [ \"ZZZReport\" ] );\n  }\n  \n} else if ( location === 'Particle' ) {\n\n  // Send entangled spin particles to Alice and Bob\n  // Here particle is a superposition of all binary rotations\n  for( let i=0; i<this.spinup.length; i++ ) {\n    ops.push( [\n      'AliceSG-Particle+' + this.rot(this.spinup,i),\n      'BobSG-Particle+' + this.rot(this.spindown,i)\n    ]);\n  }\n  \n} else if ( location === 'AliceQ' ) {\n\n  // Parse message and set measurement angle:\n  // - If question is 0, do not rotate\n  // - If question is 1, rotate -45° (-2*pi/8)\n  const question = messages[\"Question\"];\n  const rotate = ( question === '0' ? 0 : Math.round( (-2/8) * this.spinup.length) );\n  const setting = this.rot(this.spinup, rotate);\n  ops.push( [ 'AliceSG-Measure+' + question + '+' + setting ] );\n  \n} else if ( location === 'AliceSG' ) {\n\n  // Parse message\n  const [question,setting] = messages[\"Measure\"];\n  const particle = messages[\"Particle\"];\n\n  // Simulate Stern–Gerlach\n  // You as an observer can only detect up/down, which\n  // respond to responses 0/1\n  const d = this.dhamm(particle,setting);\n  const limit = Math.round(this.spinup.length / 2);\n  const R0 = 'Responses-Alice+' + question + '+' + '0';\n  const R1 = 'Responses-Alice+' + question + '+' + '1';\n  if ( d > limit ) ops.push( [ R1, R1 ] );\n  if ( d == limit ) ops.push( [ R0 ], [ R1 ] );\n  if ( d < limit ) ops.push( [ R0, R0 ] );\n  \n} else if ( location === 'BobQ' ) {\n\n  // Parse message and set measurement angle:\n  // - If question is 0, rotate 135° (3*pi/8)\n  // - If question is 1, rotate -135° (-3*pi/8)\n  const question = messages[\"Question\"];\n  const rotate = ( question === '0' ? Math.round( (3/8) * this.spinup.length) : Math.round( (-3/8) * this.spinup.length) );\n  const setting = this.rot(this.spinup, rotate);\n  ops.push( [ 'BobSG-Measure+' + question + '+' + setting ] );\n  \n} else if ( location === 'BobSG' ) {\n\n  // Parse message\n  const [question,setting] = messages[\"Measure\"];\n  const particle = messages[\"Particle\"];\n\n  // Simulate Stern–Gerlach\n  // You as an observer can only detect up/down, which\n  // respond to responses 0/1\n  const d = this.dhamm(particle,setting);\n  const limit = Math.round(this.spinup.length / 2);\n  const R0 = 'Responses-Bob+' + question + '+' + '0';\n  const R1 = 'Responses-Bob+' + question + '+' + '1';\n  if ( d > limit ) ops.push( [ R1, R1] );\n  if ( d == limit ) ops.push( [ R0 ], [ R1 ] );\n  if ( d < limit ) ops.push( [ R0, R0 ] );\n  \n} else if ( location === 'Responses' ) {\n\n  // Parse the original questions and the responses\n  const [QA,RA] = messages[\"Alice\"];\n  const [QB,RB] = messages[\"Bob\"];\n  \n  // Add the weight to the report\n  // For an observer, Charlie, the weight is the number of permutations with\n  // the clique, which is the factorial of the clique size.\n  this.results[QA+'∧'+QB][RA+'⊕'+RB].weight += this.factorial(c.length);\n  \n} else if ( location === 'Report' ) {\n  \n  // Print report for all questions\n  for( let [q,rs] of Object.entries(this.results) ) {\n\n    // Sum of the factorials in order to calculate the probabilities\n    const tot = Object.values(rs).reduce( (a,b) => a + (b.weight || BigInt(0)), BigInt(0) );\n\n    // Print summary for question q\n    let s = [];\n    for( let [r,vs] of Object.entries(rs) ) {\n      const p = Number( (vs.weight || BigInt(0) ) * 10000n / tot ) / 10000;\n      s.push( r + ' ' + vs.status + ' ' + (100*p).toFixed(1).padStart(4) + '%' );\n    }\n    this.log( q + ' == ' + s.join(' | ') );                \n  }\n\n  this.log('--- SIMULATION ENDS ---');\n  \n} else if ( location.startsWith('Z') ) {\n  // Delayed state\n  ops.push( c.map( x => x.substring(1) ) );\n}\n\nreturn ops;",
+  "init":"// Spin in computational basis\nthis.spinup = '00001111';\nthis.spindown = '11110000';\n\n// Helper functions for binary vector rotation and Hamming distance metric\nthis.rot = (s,n) => { return s.slice(-n % s.length) + s.slice(0,-n % s.length); }\nthis.dhamm = (s,t) => { return [...s].reduce( (a,b,i) => a + (b === t.charAt(i) ? 0 : 1),0 ) }\n\n// Start the first round\nthis.log('--- SIMULATION STARTS ---');\n\n// Run all possible question pairs\nreturn [ \"Start-Q+0+0\", \"ZStart-Q+0+1\", \"ZZStart-Q+1+0\", \"ZZZStart-Q+1+1\"];",
+  "oper":"// Location is the first part of the state and the same within the clique\n// Subsequent parts of the state contain the messages and memories\nconst location = c[0].split(\"-\")[0];\nconst messages = {};\nc.forEach( x => {\n  const m = x.split('-')[1];\n  if ( m ) {\n    const p = m.split('+');\n    messages[p[0]] = (p.length > 2 ? p.slice(1) : p[1]);\n  }\n});\n\n// Classical state machine\nconst ops = [];\nif ( location === 'Start' ) {\n  \n  // Send classical messages, one for Alice, one for Bob\n  const [ QA, QB ] = messages[\"Q\"];\n  ops.push( [ \"AliceQ-Question+\" + QA, \"BobQ-Question+\" + QB, \"Particle\" ] );\n  \n} else if ( location === 'Particle' ) {\n\n  // Send entangled spin particles to Alice and Bob\n  // Here particle is a superposition of all binary rotations\n  for( let i=0; i<this.spinup.length; i++ ) {\n    ops.push( [\n      'AliceSG-Particle+' + this.rot(this.spinup,i),\n      'BobSG-Particle+' + this.rot(this.spindown,i)\n    ]);\n  }\n  \n} else if ( location === 'AliceQ' ) {\n\n  // Parse message and set measurement angle:\n  // - If question is 0, do not rotate\n  // - If question is 1, rotate -45° (-2*pi/8)\n  const question = messages[\"Question\"];\n  const rotate = ( question === '0' ? 0 : Math.round( (-2/8) * this.spinup.length) );\n  const setting = this.rot(this.spinup, rotate);\n  ops.push( [ 'AliceSG-Measure+' + question + '+' + setting ] );\n  \n} else if ( location === 'AliceSG' ) {\n\n  // Parse message\n  const [question,setting] = messages[\"Measure\"];\n  const particle = messages[\"Particle\"];\n\n  // Simulate Stern–Gerlach\n  // You as an observer can only detect up/down, which\n  // respond to responses 0/1\n  const d = this.dhamm(particle,setting);\n  const limit = Math.round(this.spinup.length / 2);\n  const R0 = 'Responses-Alice+' + question + '+' + '0';\n  const R1 = 'Responses-Alice+' + question + '+' + '1';\n  if ( d > limit ) ops.push( [ R1, R1 ] );\n  if ( d == limit ) ops.push( [ R0 ], [ R1 ] );\n  if ( d < limit ) ops.push( [ R0, R0 ] );\n  \n} else if ( location === 'BobQ' ) {\n\n  // Parse message and set measurement angle:\n  // - If question is 0, rotate 135° (3*pi/8)\n  // - If question is 1, rotate -135° (-3*pi/8)\n  const question = messages[\"Question\"];\n  const rotate = ( question === '0' ? Math.round( (3/8) * this.spinup.length) : Math.round( (-3/8) * this.spinup.length) );\n  const setting = this.rot(this.spinup, rotate);\n  ops.push( [ 'BobSG-Measure+' + question + '+' + setting ] );\n  \n} else if ( location === 'BobSG' ) {\n\n  // Parse message\n  const [question,setting] = messages[\"Measure\"];\n  const particle = messages[\"Particle\"];\n\n  // Simulate Stern–Gerlach\n  // You as an observer can only detect up/down, which\n  // respond to responses 0/1\n  const d = this.dhamm(particle,setting);\n  const limit = Math.round(this.spinup.length / 2);\n  const R0 = 'Responses-Bob+' + question + '+' + '0';\n  const R1 = 'Responses-Bob+' + question + '+' + '1';\n  if ( d > limit ) ops.push( [ R1, R1 ] );\n  if ( d == limit ) ops.push( [ R0 ], [ R1 ] );\n  if ( d < limit ) ops.push( [ R0, R0 ] );\n  \n} else if ( location.startsWith('Z') ) {\n  // Delayed state\n  ops.push( c.map( x => x.substring(1) ) );\n}\n\nreturn ops;",
   "coord":"// Coordinate is the first part of the state\nreturn s.split('-')[0];",
+  "probs":"// Calculate probabilities\nconst ps = this.probsPerm(cs);\n\nif ( coord === 'Responses' ) {\n\n  // Possible responses\n  const prs = { '0⊕0': 0, '0⊕1': 0, '1⊕0': 0, '1⊕1': 0 }; \n  let label = '';\n  cs.forEach( (c,i) => {\n    // Extract messages\n    const messages = {};\n    c.forEach( x => {\n      const m = x.state.split('-')[1];\n      if ( m ) {\n        const p = m.split('+');\n        messages[p[0]] = (p.length > 2 ? p.slice(1) : p[1]);\n      }\n    });\n\n    // Questions and responses\n    if ( messages[\"Alice\"] && messages[\"Bob\"] ) {\n      const [QA,RA] = messages[\"Alice\"];\n      const [QB,RB] = messages[\"Bob\"];\n      if ( !label ) {\n        label = QA+'∧'+QB+' = ';\n      }\n\n      prs[RA+'⊕'+RB] += ps[i];\n    }\n  });\n\n  // Print the result\n  const es = [];\n  for( let [k,v] of Object.entries(prs) ) {\n    es.push(k + ' ' + (100*v).toFixed(2) + '%');\n  }\n  this.log(label + es.join(' | '));\n}\n\nreturn ps;",
   "show":"return true;",
   "detectors":"return [];"
 }

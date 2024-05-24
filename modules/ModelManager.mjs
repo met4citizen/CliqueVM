@@ -20,20 +20,21 @@ class ModelManager {
 		});
 
 		// Default
-		this.defaultmodel = [
-			"return [[0,0,0],[0,0,0]];",
-			"let s=[],t=[];\nfor( let p of c ) {\n  let [a,b]=this.clone([p,p]);\n  let i = Math.floor(Math.random()*3);\n  if (a[i]<3) a[i]++;\n  if (b[i]>-3) b[i]--;\n  s.push(a);\n  t.push(b);\n}\nreturn [s,t];",
-			"return s.join(',');",
-			"return true;",
-			"return Array.from({length:7},(_,i)=>i-3+',0,0');"
-		];
+		this.defaultmodel = {
+			init: "return [[0,0,0],[0,0,0]];",
+			oper: "let s=[],t=[];\nfor( let p of c ) {\n  let [a,b]=this.clone([p,p]);\n  let i = Math.floor(Math.random()*3);\n  if (a[i]<3) a[i]++;\n  if (b[i]>-3) b[i]--;\n  s.push(a);\n  t.push(b);\n}\nreturn [s,t];",
+			coord: "return s.join(',');",
+			probs: " ",
+			show: "return true;",
+			detectors: "return Array.from({length:7},(_,i)=>i-3+',0,0');",
+		};
 
 	}
 
 	load() {
 	  this.names.forEach( (x,i) => {
 	    let e = d3.select("#"+x+".code");
-	    let v = localStorage.getItem(x+'v2') || this.defaultmodel[i];
+	    let v = localStorage.getItem(x+'v2') || this.defaultmodel[x] || "";
 	    this.cm6view[i].dispatch( {changes: {from: 0, to: this.cm6view[i].state.doc.length, insert: v }} );
 	  });
 	}
@@ -65,7 +66,7 @@ class ModelManager {
 	  try {
 	    let o = JSON.parse(json);
 	    this.names.forEach( (x,i) => {
-	      if ( o[x] && typeof o[x] === 'string' ) {
+	      if ( o.hasOwnProperty(x) && typeof o[x] === 'string' ) {
 	        this.cm6view[i].dispatch( {changes: {from: 0, to: this.cm6view[i].state.doc.length, insert: o[x] }} );
 	      }
 	    });
@@ -96,6 +97,7 @@ class ModelManager {
 		    init: { pass: false },
 		    oper: { pass: false },
 		    coord: { pass: false },
+				probs: { pass: false },
 				show: { pass: false },
 		    detectors: { pass: false }
 		  });
@@ -118,6 +120,7 @@ class ModelManager {
 		    init: { pass: false },
 		    oper: { pass: false },
 		    coord: { pass: false },
+				probs: { pass: false },
 				show: { pass: false },
 		    detectors: { pass: false }
 		  });

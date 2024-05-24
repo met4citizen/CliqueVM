@@ -91,8 +91,6 @@ class CliqueVM {
 		if ( this.server ) {
 			if ( Array.isArray( this.server) ) {
 				this.wwmodel = new Worker('./lib/wwproxyd.js');
-			} else {
-				this.wwmodel = new Worker('./lib/wwproxy.js');
 			}
 		} else {
 			this.wwmodel = new Worker('./lib/wwmodel.js');
