@@ -295,9 +295,10 @@ FUNCTION| DESCRIPTION
 <nobr>`*cart(...sets)`</nobr> | Generates the cartesian product of the given sets. An example:<br/>`cart([a,b],[c,d,e])` -> `[a,c] [a,d] [a,e] [b,c] [b,d] [b,e]`
 <nobr>`BronKerbosch(V,N)`</nobr> | Finds maximal cliques of the set `V` using the Bron-Kerbosch algorithm. `N` is a WeakMap of neighbours for each vertex.
 <nobr>`rewriteStr(s,rules)`</nobr> | Rewrite string `s` with `rules`. Return all overlapping maximal results. For example:<br/> `rewriteStr('BAA',[['BA','AB'],['A','C']])` -> `['BCC', 'ABC']`.
-<nobr>`probsPerm(cs)`</nobr> | Maximal clique probabilities with weights based on the number of state permutations. Note: This is used as a default algorithm for calculating probabilities, if the `probs` function returns undefined/null.
-<nobr>`probsComb(cs)`</nobr> | Maximal clique probabilities with weights based on the number of state combinations.
-<nobr>`probsNone(cs)`</nobr> | Maximal clique probabilities without weights, but resolving splits.
+<nobr>`probsPerm(cs)`</nobr> | Maximal clique probabilities with weights based on the number of permutations. Note: This is used as a default algorithm for calculating probabilities, if the `probs` function returns undefined/null.
+<nobr>`probsComb(cs)`</nobr> | Maximal clique probabilities with weights based on the number of combinations.
+<nobr>`probsClassic(cs)`</nobr> | Maximal clique probabilities by using the classic chain rule of probability (multiplication principle).
+<nobr>`probsBorn(as)`</nobr> | Calculate transition probabilities based on probability amplitudes `as` by using the Born rule, that is, the cosine squared of the angle between the lines the vectors span.
 <nobr>`probsGibbs(es)`</nobr> | Calculate probabilities based on clique energies `es` using Gibbs Random Field. EXPERIMENTAL
 
 **TODO:** Add utility functions for typical use cases such as graph rewriting.
