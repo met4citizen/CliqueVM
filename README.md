@@ -10,6 +10,8 @@ into a new generation of states.
 
 **Run online: https://met4citizen.github.io/CliqueVM/**
 
+---
+
 The purpose of the project is NOT to make an app for practical simulations,
 but to study the underlying concepts and ideas.
 
