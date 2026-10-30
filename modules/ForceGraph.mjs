@@ -1,4 +1,4 @@
-import _3dForceGraph from 'https://cdn.jsdelivr.net/npm/3d-force-graph@1.70.20/+esm';
+import _3dForceGraph from 'https://cdn.jsdelivr.net/npm/3d-force-graph@1.80.1/+esm';
 
 /**
 * @class Force Graph
